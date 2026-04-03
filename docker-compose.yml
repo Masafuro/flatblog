@@ -9,6 +9,7 @@ services:
       - ./:/var/www/html/
       # プロジェクト内の data フォルダを blog としてマウント
       - ./data:/var/www/html/blog:ro
+    command: bash -c "mkdir -p /var/www/html/cache && chmod 777 /var/www/html/cache && apache2-foreground"
     restart: always
 
   # 【管理用】エディタ (flatnotes)
