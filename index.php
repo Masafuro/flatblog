@@ -29,12 +29,13 @@ $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
     </header>
 
     <main>
-    <?php $tags = $blog->getAllTags(); ?>
+    <?php $tags = $blog->getTags(50); ?>
     <?php if ($tags): ?>
     <div class="tag-cloud">
         <?php foreach ($tags as $tName => $tCount): ?>
             <a href="?tag=<?= urlencode($tName) ?>">#<?= htmlspecialchars($tName) ?> (<?= $tCount ?>)</a>
         <?php endforeach; ?>
+        <a href="?mode=tags" class="tag-list-link">📁すべてのタグを見る</a>
     </div>
     <?php endif; ?>
 
@@ -100,6 +101,16 @@ $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
             <h2>記事が見つかりません</h2>
             <p>お探しの記事は削除されたか、URLが間違っている可能性があります。</p>
         <?php endif; ?>
+
+    <!-- 5. タグ一覧モード -->
+    <?php elseif ($blog->isTagsList()): ?>
+        <h2>すべてのタグ (上位1000件)</h2>
+        <div class="tag-cloud large">
+            <?php foreach ($blog->getTags(1000) as $tName => $tCount): ?>
+                <a href="?tag=<?= urlencode($tName) ?>">#<?= htmlspecialchars($tName) ?> (<?= $tCount ?>)</a>
+            <?php endforeach; ?>
+        </div>
+
     <?php endif; ?>
     </main>
 

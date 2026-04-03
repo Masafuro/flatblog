@@ -6,7 +6,9 @@ It uses [flatnotes](https://github.com/dullage/flatnotes) as a headless Markdown
 ## Features
 - **Zero Database**: Stores all your posts as raw Markdown (`.md`) files.
 - **Secure Admin Panel**: Edit your posts easily using the built-in flatnotes editor interface.
+- **Smart Tag System**: Automatically detects hashtags (e.g., `#tag`) inside your posts and generates high-performance indices in the background. 
 - **Ultra Fast**: Server-side rendered with virtually zero overhead.
+- **Responsive by Design**: A lightweight, mobile-first theme that works flawlessly on every device without CSS bloat.
 - **Dead-Simple Customization**: Your entire blog theme is managed in just one file (`index.php`). You don't need to learn complex template engines; just write regular HTML.
 
 ---

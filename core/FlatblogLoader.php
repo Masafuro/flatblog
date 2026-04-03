@@ -33,6 +33,8 @@ class FlatblogLoader {
             $this->mode = 'tag';
         } elseif ($this->searchQuery !== null && trim($this->searchQuery) !== '') {
             $this->mode = 'search';
+        } elseif (isset($_GET['mode']) && $_GET['mode'] === 'tags') {
+            $this->mode = 'tags_list';
         } else {
             $this->mode = 'list';
         }
@@ -42,6 +44,7 @@ class FlatblogLoader {
     public function isPost(): bool { return $this->mode === 'post'; }
     public function isSearch(): bool { return $this->mode === 'search'; }
     public function isTagSearch(): bool { return $this->mode === 'tag'; }
+    public function isTagsList(): bool { return $this->mode === 'tags_list'; }
     
     public function getSafeTag(): string {
         return htmlspecialchars((string)$this->tagQuery, ENT_QUOTES, 'UTF-8');
@@ -58,14 +61,29 @@ class FlatblogLoader {
         return count($this->getPosts());
     }
 
-    public function getAllTags(): array {
+    public function getTags(?int $limit = null, string $sort = 'count_desc'): array {
         $this->triggerTagBuildIfNeeded();
         $indexPath = dirname(__DIR__) . '/cache/tags_index.json';
+        
+        $tags = [];
         if (file_exists($indexPath)) {
             $data = json_decode(file_get_contents($indexPath), true);
-            return $data['counts'] ?? [];
+            $tags = $data['counts'] ?? [];
         }
-        return [];
+        
+        if (!empty($tags)) {
+            if ($sort === 'count_desc') {
+                arsort($tags);
+            } elseif ($sort === 'name_asc') {
+                ksort($tags);
+            }
+            
+            if ($limit !== null && $limit > 0) {
+                $tags = array_slice($tags, 0, $limit, true);
+            }
+        }
+        
+        return $tags;
     }
 
     private function triggerTagBuildIfNeeded(): void {

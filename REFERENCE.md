@@ -13,11 +13,14 @@ Use these boolean methods inside `if / elseif` blocks to render different HTML l
 - `$blog->isPost()`: Returns `true` if the visitor is viewing a specific article (`?post=...`).
 - `$blog->isSearch()`: Returns `true` if the visitor is performing a text search (`?q=...`).
 - `$blog->isTagSearch()`: Returns `true` if the visitor is filtering by a specific tag (`?tag=...`).
+- `$blog->isTagsList()`: Returns `true` if the visitor is viewing all tags page (`?mode=tags`).
 
 ### 📦 Data Retrieval Methods
 - `$blog->getPosts()`: Returns an array of `Post` objects. It automatically handles sorting (newest first) and respects the active search or tag filters.
 - `$blog->getCurrentPost()`: Returns the single `Post` object corresponding to the current URL. Returns `null` if the article does not exist (allowing you to show a custom 404 message).
-- `$blog->getAllTags()`: Returns an array mapping tag names to their post counts (e.g., `['news' => 3, 'tech' => 1]`), sorted by frequency. Useful for generating "Tag Clouds".
+- `$blog->getTags(?int $limit = null, string $sort = 'count_desc')`: Returns an array mapping tag names to their post counts (e.g., `['news' => 3, 'tech' => 1]`).
+    - `$limit`: Max number of tags to return (default: `null` for all).
+    - `$sort`: Sorting logic (`'count_desc'` for frequency, `'name_asc'` for alphabetical).
 - `$blog->getResultCount()`: Returns the integer count of how many articles currently exist in the `$blog->getPosts()` array.
 - `$blog->getSafeQuery()`: Returns the text search string (`?q=...`), pre-escaped and safe for HTML injection.
 - `$blog->getSafeTag()`: Returns the tag string (`?tag=...`), pre-escaped and safe for HTML injection.
@@ -26,34 +29,47 @@ Use these boolean methods inside `if / elseif` blocks to render different HTML l
 
 ## 2. The `Post` Object
 
-Whether you are looping over `$blog->getPosts()` or rendering `$blog->getCurrentPost()`, you will be interacting with a read-only `Post` data transfer object. All string properties are **pre-sanitized and XSS-proofed** at the backend layer.
+Whether you are looping over `$blog->getPosts()` or rendering `$blog->getCurrentPost()`, you will be interacting with a **read-only** `Post` data transfer object. All string properties are **pre-sanitized and XSS-proofed** at the backend layer.
 
 - `$post->slug`: The machine-friendly identifier (derived from the original filename).
-  *(Example Usage: `<a href="?post=<?= urlencode($post->slug) ?>">Link</a>`)*
 - `$post->title`: The human-readable title (derived from the slug, pre-escaped).
-  *(Example Usage: `<h2><?= $post->title ?></h2>`)*
 - `$post->date`: The last modified date of the markdown file (Format: `YYYY-MM-DD`).
 - `$post->htmlContent`: The complete Markdown article parsed into high-quality HTML, with image paths automatically properly routed.
-  *(Example Usage: `<div class="content"><?= $post->htmlContent ?></div>`)*
 
 ---
 
 ## 3. Implementation Example
 
-Here is a minimal, clean example of how your logic should flow within the `<body>`:
+Here is a clean example of how your logic should flow within the `<body>`:
 
 ```php
 <main>
-    <?php if ($blog->isHome()): ?>
-        <h1>Recent Notes</h1>
-        <ul>
-            <?php foreach ($blog->getPosts() as $post): ?>
-                <li>
-                    <time><?= $post->date ?></time>
-                    <a href="?post=<?= urlencode($post->slug) ?>"><?= $post->title ?></a>
-                </li>
+    <!-- Tag Cloud (Sidebar/Header) -->
+    <?php $tags = $blog->getTags(50); ?>
+    <?php if ($tags): ?>
+        <div class="tag-cloud">
+            <?php foreach ($tags as $name => $count): ?>
+                <a href="?tag=<?= urlencode($name) ?>">#<?= htmlspecialchars($name) ?> (<?= $count ?>)</a>
             <?php endforeach; ?>
-        </ul>
+            <a href="?mode=tags">View all tags</a>
+        </div>
+    <?php endif; ?>
+
+    <!-- Display logic based on mode -->
+    <?php if ($blog->isHome()): ?>
+        <h1>Recent Posts</h1>
+        <?php foreach ($blog->getPosts() as $post): ?>
+            <section>
+                <h2><a href="?post=<?= urlencode($post->slug) ?>"><?= $post->title ?></a></h2>
+                <p><?= $post->date ?></p>
+            </section>
+        <?php endforeach; ?>
+
+    <?php elseif ($blog->isTagsList()): ?>
+        <h1>All Tags (Top 1000)</h1>
+        <?php foreach ($blog->getTags(1000) as $name => $count): ?>
+            <a href="?tag=<?= urlencode($name) ?>">#<?= $name ?> (<?= $count ?>)</a>
+        <?php endforeach; ?>
 
     <?php elseif ($blog->isPost()): ?>
         <?php $post = $blog->getCurrentPost(); ?>
@@ -63,7 +79,7 @@ Here is a minimal, clean example of how your logic should flow within the `<body
                 <?= $post->htmlContent ?>
             </article>
         <?php else: ?>
-            <h1>404 - Note missing</h1>
+            <h1>404 - Not found</h1>
         <?php endif; ?>
 
     <?php endif; ?>
