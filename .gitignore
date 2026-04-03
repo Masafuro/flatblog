@@ -4,10 +4,12 @@ Thumbs.db
 
 
 # For Antigravity
-# data/
 REPORT/
 MEMO/
 PLAN/
 CODING_RULES.md
 PLANNING_RULES.md
 ORDER.md
+
+# Application Cache
+cache/

@@ -60,7 +60,7 @@ class FlatblogLoader {
 
     public function getAllTags(): array {
         $this->triggerTagBuildIfNeeded();
-        $indexPath = $this->dataDir . '/tags_index.json';
+        $indexPath = dirname(__DIR__) . '/cache/tags_index.json';
         if (file_exists($indexPath)) {
             $data = json_decode(file_get_contents($indexPath), true);
             return $data['counts'] ?? [];
@@ -80,7 +80,7 @@ class FlatblogLoader {
             }
         }
         
-        $indexPath = $this->dataDir . '/tags_index.json';
+        $indexPath = dirname(__DIR__) . '/cache/tags_index.json';
         $indexMtime = file_exists($indexPath) ? filemtime($indexPath) : 0;
         
         if ($latestMtime > $indexMtime) {
@@ -104,7 +104,7 @@ class FlatblogLoader {
         
         $tagMap = [];
         if ($this->isTagSearch()) {
-            $indexPath = $this->dataDir . '/tags_index.json';
+            $indexPath = dirname(__DIR__) . '/cache/tags_index.json';
             if (file_exists($indexPath)) {
                 $index = json_decode(file_get_contents($indexPath), true);
                 if (isset($index['map'][$this->tagQuery])) {

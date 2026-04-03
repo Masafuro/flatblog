@@ -48,7 +48,12 @@ $indexData = [
     'map' => $tagMap
 ];
 
-$indexPath = $dataDir . '/tags_index.json';
+$cacheDir = dirname(__DIR__) . '/cache';
+if (!is_dir($cacheDir)) {
+    @mkdir($cacheDir, 0777, true); // Rule of silence: fails silently if it cannot create
+}
+$indexPath = $cacheDir . '/tags_index.json';
+
 // アトミック書き込み（競合防止）
 $tmpFile = $indexPath . '.tmp.' . uniqid();
 file_put_contents($tmpFile, json_encode($indexData, JSON_UNESCAPED_UNICODE));
