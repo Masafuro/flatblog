@@ -1,10 +1,10 @@
-data/
 .env
 .DS_Store
 Thumbs.db
 
 
 # For Antigravity
+data/
 REPORT/
 MEMO/
 PLAN/

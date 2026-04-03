@@ -27,6 +27,9 @@ $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
         .search-box input { padding: 5px; }
         article { margin-top: 20px; }
         footer { margin-top: 50px; text-align: center; color: #888; font-size: 0.9em; border-top: 1px solid #eee; padding-top: 20px; }
+        .tag-cloud { margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; }
+        .tag-cloud a { display: inline-block; margin: 0 10px 5px 0; background: #e2e8f0; color: #4a5568; padding: 4px 10px; border-radius: 20px; font-size: 0.9em; text-decoration: none; }
+        .tag-cloud a:hover { background: #cbd5e0; }
     </style>
 </head>
 <body>
@@ -42,6 +45,15 @@ $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
     </header>
 
     <main>
+    <?php $tags = $blog->getAllTags(); ?>
+    <?php if ($tags): ?>
+    <div class="tag-cloud">
+        <?php foreach ($tags as $tName => $tCount): ?>
+            <a href="?tag=<?= urlencode($tName) ?>">#<?= htmlspecialchars($tName) ?> (<?= $tCount ?>)</a>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
+
     <!-- 1. 一覧（ホーム）モード -->
     <?php if ($blog->isHome()): ?>
         <h2>最新の記事</h2>
@@ -71,7 +83,23 @@ $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
             <p>該当する記事は見つかりませんでした。</p>
         <?php endif; ?>
 
-    <!-- 3. 個別記事モード -->
+    <!-- 3. タグ検索モード -->
+    <?php elseif ($blog->isTagSearch()): ?>
+        <h2>「#<?= $blog->getSafeTag() ?>」の記事一覧 (<?= $blog->getResultCount() ?>件)</h2>
+        <?php if ($blog->getResultCount() > 0): ?>
+            <ul class="post-list">
+                <?php foreach ($blog->getPosts() as $post): ?>
+                    <li>
+                        <span class="date"><?= $post->date ?></span>
+                        <a href="?post=<?= urlencode($post->slug) ?>"><?= $post->title ?></a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php else: ?>
+            <p>該当するタグの記事は見つかりませんでした。</p>
+        <?php endif; ?>
+
+    <!-- 4. 個別記事モード -->
     <?php elseif ($blog->isPost()): ?>
         <?php $post = $blog->getCurrentPost(); ?>
         <?php if ($post): ?>

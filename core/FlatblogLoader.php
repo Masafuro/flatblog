@@ -14,6 +14,7 @@ class FlatblogLoader {
     private ?string $mode = null;
     private ?string $postSlug = null;
     private ?string $searchQuery = null;
+    private ?string $tagQuery = null;
 
     public function __construct(string $dataDir) {
         $this->dataDir = rtrim($dataDir, '/');
@@ -22,11 +23,14 @@ class FlatblogLoader {
         // HTTP GETルーティングの解析（HTML側から隠蔽）
         $this->postSlug = $_GET['post'] ?? null;
         $this->searchQuery = $_GET['q'] ?? null;
+        $this->tagQuery = $_GET['tag'] ?? null;
 
         if ($this->postSlug !== null) {
             $this->mode = 'post';
             // 安全対策：パストラバーサルの無効化（マルチバイト対応）
             $this->postSlug = str_replace(['/', '\\', "\0"], '', $this->postSlug); 
+        } elseif ($this->tagQuery !== null && trim($this->tagQuery) !== '') {
+            $this->mode = 'tag';
         } elseif ($this->searchQuery !== null && trim($this->searchQuery) !== '') {
             $this->mode = 'search';
         } else {
@@ -37,7 +41,12 @@ class FlatblogLoader {
     public function isHome(): bool { return $this->mode === 'list'; }
     public function isPost(): bool { return $this->mode === 'post'; }
     public function isSearch(): bool { return $this->mode === 'search'; }
+    public function isTagSearch(): bool { return $this->mode === 'tag'; }
     
+    public function getSafeTag(): string {
+        return htmlspecialchars((string)$this->tagQuery, ENT_QUOTES, 'UTF-8');
+    }
+
     /**
      * 無毒化済みの検索クエリを返す（XSS対策の関所）
      */
@@ -47,6 +56,37 @@ class FlatblogLoader {
 
     public function getResultCount(): int {
         return count($this->getPosts());
+    }
+
+    public function getAllTags(): array {
+        $this->triggerTagBuildIfNeeded();
+        $indexPath = $this->dataDir . '/tags_index.json';
+        if (file_exists($indexPath)) {
+            $data = json_decode(file_get_contents($indexPath), true);
+            return $data['counts'] ?? [];
+        }
+        return [];
+    }
+
+    private function triggerTagBuildIfNeeded(): void {
+        $files = glob($this->dataDir . '/*.md');
+        if (!$files) return;
+        
+        $latestMtime = 0;
+        foreach ($files as $f) {
+            $mtime = filemtime($f);
+            if ($mtime > $latestMtime) {
+                $latestMtime = $mtime;
+            }
+        }
+        
+        $indexPath = $this->dataDir . '/tags_index.json';
+        $indexMtime = file_exists($indexPath) ? filemtime($indexPath) : 0;
+        
+        if ($latestMtime > $indexMtime) {
+            $script = dirname(__DIR__) . '/core/build_tags.php';
+            exec("nohup php " . escapeshellarg($script) . " " . escapeshellarg($this->dataDir) . " > /dev/null 2>&1 &");
+        }
     }
 
     /**
@@ -62,9 +102,24 @@ class FlatblogLoader {
         }
         arsort($fileData); // 更新日時で降順ソート
         
+        $tagMap = [];
+        if ($this->isTagSearch()) {
+            $indexPath = $this->dataDir . '/tags_index.json';
+            if (file_exists($indexPath)) {
+                $index = json_decode(file_get_contents($indexPath), true);
+                if (isset($index['map'][$this->tagQuery])) {
+                    $tagMap = array_flip($index['map'][$this->tagQuery]);
+                }
+            }
+        }
+
         $posts = [];
         foreach ($fileData as $filePath => $mtime) {
             $filename = basename($filePath, '.md');
+
+            if ($this->isTagSearch() && !isset($tagMap[$filename])) {
+                continue;
+            }
             $content = file_get_contents($filePath);
             
             // 検索フィルタリング（AND条件がない単純なOR検索）
