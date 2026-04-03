@@ -1,0 +1,28 @@
+services:
+  # 【公開用】自作PHPブログ (flatblog)
+  flatblog:
+    image: php:8.2-apache
+    container_name: flatblog
+    ports:
+      - "8880:80"
+    volumes:
+      - ./:/var/www/html/
+      # プロジェクト内の data フォルダを blog としてマウント
+      - ./data:/var/www/html/blog:ro
+    restart: always
+
+  # 【管理用】エディタ (flatnotes)
+  editor:
+    image: dullage/flatnotes:latest
+    container_name: flatblog_editor
+    ports:
+      - "8881:8080"
+    environment:
+      - FLATNOTES_AUTH_TYPE=password
+      - FLATNOTES_USERNAME=${FLAT_USER}
+      - FLATNOTES_PASSWORD=${FLAT_PASS}
+      - FLATNOTES_SECRET_KEY=${FLAT_SECRET}
+    volumes:
+      # 同じ data フォルダを editor 側では「書き込み可能」でマウント
+      - ./data:/data
+    restart: always

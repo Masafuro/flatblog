@@ -1,0 +1,13 @@
+data/
+.env
+.DS_Store
+Thumbs.db
+
+
+# For Antigravity
+REPORT/
+MEMO/
+PLAN/
+CODING_RULES.md
+PLANNING_RULES.md
+ORDER.md
