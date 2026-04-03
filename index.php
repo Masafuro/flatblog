@@ -13,24 +13,8 @@ $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $blog->isPost() ? $blog->getCurrentPost()?->title . ' - Flatblog' : 'Flatblog' ?></title>
-    <!-- 例としてインラインCSSですが、外部CSS（style.css）の読み込みも自由です -->
-    <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; color: #333; }
-        header { border-bottom: 2px solid #333; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; }
-        h1 a { text-decoration: none; color: #333; }
-        .post-list { list-style: none; padding: 0; }
-        .post-list li { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; font-size: 1.1em; }
-        .date { color: #888; font-size: 0.85em; margin-right: 15px; }
-        a { color: #0066cc; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        img { max-width: 100%; height: auto; border-radius: 8px; }
-        .search-box input { padding: 5px; }
-        article { margin-top: 20px; }
-        footer { margin-top: 50px; text-align: center; color: #888; font-size: 0.9em; border-top: 1px solid #eee; padding-top: 20px; }
-        .tag-cloud { margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; }
-        .tag-cloud a { display: inline-block; margin: 0 10px 5px 0; background: #e2e8f0; color: #4a5568; padding: 4px 10px; border-radius: 20px; font-size: 0.9em; text-decoration: none; }
-        .tag-cloud a:hover { background: #cbd5e0; }
-    </style>
+    <!-- 抽出された外部CSSの読み込み -->
+    <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
     <header>
@@ -123,5 +107,7 @@ $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
         <!-- Date('Y')等を使わず、静的に書く (HTML First) -->
         <small>&copy; 2026 Flatblog - Built with DataLoader PHP</small>
     </footer>
+    <!-- 開発者向けJSプレースホルダー -->
+    <script src="assets/js/script.js"></script>
 </body>
 </html>
