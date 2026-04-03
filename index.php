@@ -50,7 +50,7 @@ $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
             <?php foreach ($blog->getPosts() as $post): ?>
                 <li>
                     <span class="date"><?= $post->date ?></span>
-                    <a href="?post=<?= $post->slug ?>"><?= $post->title ?></a>
+                    <a href="?post=<?= urlencode($post->slug) ?>"><?= $post->title ?></a>
                 </li>
             <?php endforeach; ?>
         </ul>
@@ -63,7 +63,7 @@ $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
                 <?php foreach ($blog->getPosts() as $post): ?>
                     <li>
                         <span class="date"><?= $post->date ?></span>
-                        <a href="?post=<?= $post->slug ?>"><?= $post->title ?></a>
+                        <a href="?post=<?= urlencode($post->slug) ?>"><?= $post->title ?></a>
                     </li>
                 <?php endforeach; ?>
             </ul>

@@ -25,8 +25,8 @@ class FlatblogLoader {
 
         if ($this->postSlug !== null) {
             $this->mode = 'post';
-            // 安全対策：パストラバーサルの無効化
-            $this->postSlug = basename($this->postSlug); 
+            // 安全対策：パストラバーサルの無効化（マルチバイト対応）
+            $this->postSlug = str_replace(['/', '\\', "\0"], '', $this->postSlug); 
         } elseif ($this->searchQuery !== null && trim($this->searchQuery) !== '') {
             $this->mode = 'search';
         } else {
