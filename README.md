@@ -52,6 +52,8 @@ Unlike heavy CMS platforms, customizing Flatblog requires zero knowledge of cust
 
 Simply open `index.php` in the root directory. It is a standard HTML file that fetches your safe markdown data. You can completely modify the HTML structure, write your own CSS, or import external frameworks (like Tailwind or Bootstrap) directly into `index.php` without breaking the core system.
 
+👉 **[View the Theme Development Reference (API Cheat Sheet) here](REFERENCE.md)**
+
 ---
 
 ## 🤖 AI Architectural Review (by Gemini 3.1 Pro High)
