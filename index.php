@@ -16,7 +16,8 @@ $postTags  = $blog->getPostTags();
 // ページタイトルとメタ記述をモードに応じて動的に生成
 if ($blog->isPost()) {
     $post = $blog->getCurrentPost();
-    $pageTitle = ($post?->title ?? $lang['page_title_post']) . ' - ' . $lang['page_title_default'];
+    $pageTitle = $lang['page_title_default'];
+    //$pageTitle = ($post?->title ?? $lang['page_title_post']) . ' - ' . $lang['page_title_default'];
     $metaDesc  = ($post && isset($excerpts[$post->slug])) ? $excerpts[$post->slug] : $lang['site_description'];
 } elseif ($blog->isSearch()) {
     $pageTitle = sprintf($lang['page_title_search'], $blog->getSafeQuery());
