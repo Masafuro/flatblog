@@ -100,6 +100,9 @@ if ($blog->isPost()) {
 
     <!-- 2. 検索結果モード -->
     <?php elseif ($blog->isSearch()): ?>
+        <nav class="breadcrumb">
+            <a href="./">← 記事一覧に戻る</a>
+        </nav>
         <h2>「<?= $blog->getSafeQuery() ?>」の検索結果 (<?= $blog->getResultCount() ?>件)</h2>
         <?php if ($blog->getResultCount() > 0): ?>
             <ul class="post-list">
@@ -140,6 +143,9 @@ if ($blog->isPost()) {
 
     <!-- 3. タグ検索モード -->
     <?php elseif ($blog->isTagSearch()): ?>
+        <nav class="breadcrumb">
+            <a href="./">← 記事一覧に戻る</a>
+        </nav>
         <h2>「#<?= $blog->getSafeTag() ?>」の記事一覧 (<?= $blog->getResultCount() ?>件)</h2>
         <?php if ($blog->getResultCount() > 0): ?>
             <ul class="post-list">

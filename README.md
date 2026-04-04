@@ -11,7 +11,7 @@ It uses [flatnotes](https://github.com/dullage/flatnotes) as a headless Markdown
 - **Card-Based Overview**: The article list displays a thumbnail (extracted from the first local image in each post) and a plain-text excerpt (first 200 characters). Posts without images fall back gracefully to a CSS gradient placeholder — no configuration required.
 - **In-Card Tag Badges**: Each article card shows its associated tags as clickable badges, providing immediate navigation context without leaving the overview.
 - **Ultra Fast**: Server-side rendered with no database queries and virtually zero overhead.
-- **Dead-Simple Customization**: Your entire blog theme lives in `index.php` — standard HTML with a transparent PHP data object. No template engine to learn.
+- **Dead-Simple Customization**: Your entire blog theme lives in `index.php` and `assets/css/style.css`. Theme colors and layout values are defined as CSS custom properties in `:root` — override any variable in a single block to reskin the entire site. No template engine to learn.
 
 ---
 
@@ -52,7 +52,7 @@ After starting the containers:
 Flatblog's frontend is divided into clean, extensible layers:
 
 1. **HTML Structure (`index.php`)**: The theme template. Standard HTML with PHP data injection. Modify the DOM freely.
-2. **Styling (`assets/css/style.css`)**: The default lightweight CSS theme.
+2. **Styling (`assets/css/style.css`)**: The default lightweight CSS theme. All colors and layout values are defined as CSS custom properties in `:root`. To reskin the site, redefine these variables — no other file needs to change. Dark mode is supported automatically via `prefers-color-scheme`.
 3. **Scripts (`assets/js/script.js`)**: Entry point for custom frontend logic.
 
 **⚡ For Advanced Developers (Vite, Webpack, Tailwind, etc.):**
