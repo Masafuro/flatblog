@@ -233,7 +233,9 @@ if ($blog->isPost()) {
 
     <footer>
         <!-- Date('Y')等を使わず、静的に書く (HTML First) -->
-        <small>&copy; 2026 Flatblog - Built with DataLoader PHP</small>
+        <a href="https://github.com/Masafuro/flatblog">
+            <small>&copy; 2026 Flatblog - Built with DataLoader PHP</small>
+        </a>
     </footer>
     <!-- 開発者向けJSプレースホルダー -->
     <script src="assets/js/script.js"></script>
