@@ -2,8 +2,7 @@ body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 
 header { border-bottom: 2px solid #333; margin-bottom: 20px; padding-bottom: 15px; text-align: center; }
 header h1 { margin: 0 0 10px 0; }
 h1 a { text-decoration: none; color: #333; }
-.post-list { list-style: none; padding: 0; }
-.post-list li { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; font-size: 1.1em; }
+/* .post-list は下部のカードグリッド定義で一元管理 */
 .date { color: #888; font-size: 0.85em; margin-right: 15px; }
 a { color: #0066cc; text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -14,3 +13,48 @@ footer { margin-top: 50px; text-align: center; color: #888; font-size: 0.9em; bo
 .tag-cloud { margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; }
 .tag-cloud a { display: inline-block; margin: 0 10px 5px 0; background: #e2e8f0; color: #4a5568; padding: 4px 10px; border-radius: 20px; font-size: 0.9em; text-decoration: none; }
 .tag-cloud a:hover { background: #cbd5e0; }
+/* タグ一覧ページ（?mode=tags）専用の大きめ表示 */
+.tag-cloud.large { padding: 20px; }
+.tag-cloud.large a { font-size: 1em; padding: 6px 14px; margin: 0 8px 8px 0; }
+
+/* ── 記事カード ── */
+.post-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+.post-card { border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; }
+.post-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
+.post-card__link { display: block; text-decoration: none; color: inherit; }
+.post-card__link:hover { text-decoration: none; }
+
+/* サムネイル領域：画像ありは写真を表示、なしはグラデーションフォールバック（案E） */
+.post-card__image {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+.post-card__image[data-has-image="true"] { background: none; }
+.post-card__image img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 0; }
+
+.post-card__body { padding: 12px 16px 16px; }
+.post-card__title { margin: 4px 0 8px; font-size: 1rem; font-weight: 600; color: #222; line-height: 1.4; }
+.excerpt {
+    font-size: 0.82em;
+    color: #666;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5;
+}
+
+/* ── 記事カード内タグバッジ ── */
+.post-card__tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
+.tag-badge { font-size: 0.75em; background: #e2e8f0; color: #4a5568; padding: 2px 8px; border-radius: 20px; text-decoration: none; }
+.tag-badge:hover { background: #cbd5e0; text-decoration: none; }
+
+/* ── ナビゲーション（戻るリンク）── */
+.breadcrumb { margin-bottom: 16px; }
+.breadcrumb a { color: #888; font-size: 0.9em; text-decoration: none; }
+.breadcrumb a:hover { color: #333; text-decoration: underline; }
+
+/* ── 空状態メッセージ ── */
+.empty-state { color: #aaa; text-align: center; padding: 60px 0; font-size: 1.1em; }

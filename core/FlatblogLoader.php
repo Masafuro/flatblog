@@ -86,6 +86,49 @@ class FlatblogLoader {
         return $tags;
     }
 
+    /**
+     * 記事slugをキー、最初のローカル画像パス(またはnull)を値とする配列を返す
+     * Rule of Silence: インデックス未生成・画像なしは静かに空配列/nullを返す
+     */
+    public function getThumbs(): array {
+        $indexPath = dirname(__DIR__) . '/cache/tags_index.json';
+        if (!file_exists($indexPath)) return [];
+        $data = json_decode(file_get_contents($indexPath), true);
+        return $data['thumbs'] ?? [];
+    }
+
+    /**
+     * 記事slugをキー、要約テキスト(またはnull)を値とする配列を返す
+     * Rule of Silence: インデックス未生成・本文なしは静かに空配列/nullを返す
+     */
+    public function getExcerpts(): array {
+        $indexPath = dirname(__DIR__) . '/cache/tags_index.json';
+        if (!file_exists($indexPath)) return [];
+        $data = json_decode(file_get_contents($indexPath), true);
+        return $data['excerpts'] ?? [];
+    }
+
+    /**
+     * 記事slugをキー、タグ名配列を値とする逆引きマップを返す
+     * tags_index.json の map（タグ→slug[]）を逆転させる
+     * Rule of Silence: インデックス未生成時は静かに空配列を返す
+     */
+    public function getPostTags(): array {
+        $indexPath = dirname(__DIR__) . '/cache/tags_index.json';
+        if (!file_exists($indexPath)) return [];
+        $data = json_decode(file_get_contents($indexPath), true);
+        $map = $data['map'] ?? [];
+
+        // {タグ名: [slug,...]} → {slug: [タグ名,...]} に逆転
+        $postTags = [];
+        foreach ($map as $tag => $slugs) {
+            foreach ($slugs as $slug) {
+                $postTags[$slug][] = $tag;
+            }
+        }
+        return $postTags;
+    }
+
     private function triggerTagBuildIfNeeded(): void {
         $files = glob($this->dataDir . '/*.md');
         if (!$files) return;

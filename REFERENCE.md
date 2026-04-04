@@ -1,87 +1,201 @@
 # Flatblog Theme Development Reference
 
-Flatblog is designed with the "HTML First" philosophy. All theme customizations are performed directly in a single `index.php` file. You do not need to learn complex custom template engines (like Twig or Blade). You simply write standard HTML and use the transparent PHP `$blog` object to inject secure, pre-processed data.
+Flatblog is designed with the **"HTML First"** philosophy. All theme customizations are performed directly in `index.php`. You do not need to learn complex template engines (like Twig or Blade). You simply write standard HTML and use the transparent PHP `$blog` object to inject secure, pre-processed data.
+
+---
 
 ## 1. The `$blog` Object (FlatblogLoader)
 
-At the top of `index.php`, the `$blog` object is instantiated. It serves as your sole, read-only data provider.
+At the top of `index.php`, the `$blog` object is instantiated. It serves as your sole, read-only data provider. All routing is resolved internally at construction time.
+
+```php
+$blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
+```
 
 ### 🧭 State & Routing Methods
+
 Use these boolean methods inside `if / elseif` blocks to render different HTML layouts based on the current URL.
 
-- `$blog->isHome()`: Returns `true` if the visitor is viewing the default article list.
-- `$blog->isPost()`: Returns `true` if the visitor is viewing a specific article (`?post=...`).
-- `$blog->isSearch()`: Returns `true` if the visitor is performing a text search (`?q=...`).
-- `$blog->isTagSearch()`: Returns `true` if the visitor is filtering by a specific tag (`?tag=...`).
-- `$blog->isTagsList()`: Returns `true` if the visitor is viewing all tags page (`?mode=tags`).
+| Method | Returns `true` when... | URL parameter |
+|---|---|---|
+| `$blog->isHome()` | Visitor is on the default article list | *(none)* |
+| `$blog->isPost()` | Visitor is viewing a specific article | `?post=slug` |
+| `$blog->isSearch()` | Visitor is performing a text search | `?q=keyword` |
+| `$blog->isTagSearch()` | Visitor is filtering by a tag | `?tag=name` |
+| `$blog->isTagsList()` | Visitor is on the all-tags page | `?mode=tags` |
+
+---
 
 ### 📦 Data Retrieval Methods
-- `$blog->getPosts()`: Returns an array of `Post` objects. It automatically handles sorting (newest first) and respects the active search or tag filters.
-- `$blog->getCurrentPost()`: Returns the single `Post` object corresponding to the current URL. Returns `null` if the article does not exist (allowing you to show a custom 404 message).
-- `$blog->getTags(?int $limit = null, string $sort = 'count_desc')`: Returns an array mapping tag names to their post counts (e.g., `['news' => 3, 'tech' => 1]`).
-    - `$limit`: Max number of tags to return (default: `null` for all).
-    - `$sort`: Sorting logic (`'count_desc'` for frequency, `'name_asc'` for alphabetical).
-- `$blog->getResultCount()`: Returns the integer count of how many articles currently exist in the `$blog->getPosts()` array.
-- `$blog->getSafeQuery()`: Returns the text search string (`?q=...`), pre-escaped and safe for HTML injection.
-- `$blog->getSafeTag()`: Returns the tag string (`?tag=...`), pre-escaped and safe for HTML injection.
+
+#### Posts & Content
+
+- **`$blog->getPosts(): Post[]`**  
+  Returns an array of `Post` objects sorted by last-modified date (newest first).  
+  Automatically applies active search or tag filters from the current URL.
+
+- **`$blog->getCurrentPost(): Post|null`**  
+  Returns the single `Post` object for the current URL.  
+  Returns `null` silently if the article does not exist — use this to render a custom 404 message.
+
+- **`$blog->getResultCount(): int`**  
+  Returns the count of posts currently in `getPosts()`.
+
+#### Tags
+
+- **`$blog->getTags(?int $limit = null, string $sort = 'count_desc'): array`**  
+  Returns an associative array mapping tag names to their post counts.  
+  Example output: `['php' => 5, 'docker' => 3]`
+  - `$limit`: Maximum number of tags to return (`null` = all).
+  - `$sort`: `'count_desc'` (by frequency, default) or `'name_asc'` (alphabetical).
+
+- **`$blog->getPostTags(): array`**  
+  Returns an associative array mapping post slugs to an array of their tag names.  
+  This is the inverse of `getTags()` — it lets you display tags *per article card*.  
+  Example output: `['my-post' => ['php', 'docker'], 'another-post' => ['php']]`  
+  Returns `[]` silently if the background index has not yet been built.
+
+#### Thumbnails & Excerpts (from background index)
+
+These methods read from the background-built cache index (`cache/tags_index.json`).  
+On the very first request after a post is updated, the index may not yet be rebuilt — in that case, both methods return `[]` silently, and the UI falls back gracefully (CSS gradient placeholder for images, no excerpt shown).
+
+- **`$blog->getThumbs(): array`**  
+  Returns an associative array mapping post slugs to the path of the first local image found in the post's Markdown source (e.g., `attachments/photo.jpg`), or `null` if the post contains no local image.  
+  Example: `['my-post' => 'attachments/photo.jpg', 'text-only' => null]`
+
+- **`$blog->getExcerpts(): array`**  
+  Returns an associative array mapping post slugs to a plain-text excerpt (first 200 characters, with all Markdown syntax stripped), or `null` if the post body is empty.  
+  Example: `['my-post' => 'This is the beginning of the article...', 'empty-post' => null]`
+
+#### Safe Output (XSS guards)
+
+- **`$blog->getSafeQuery(): string`**  
+  Returns the current search string (`?q=...`), pre-escaped with `htmlspecialchars()`. Safe to echo directly into HTML.
+
+- **`$blog->getSafeTag(): string`**  
+  Returns the current tag filter string (`?tag=...`), pre-escaped with `htmlspecialchars()`. Safe to echo directly into HTML.
 
 ---
 
 ## 2. The `Post` Object
 
-Whether you are looping over `$blog->getPosts()` or rendering `$blog->getCurrentPost()`, you will be interacting with a **read-only** `Post` data transfer object. All string properties are **pre-sanitized and XSS-proofed** at the backend layer.
+Whether you are looping over `$blog->getPosts()` or rendering `$blog->getCurrentPost()`, you interact with a **read-only** `Post` data transfer object. All string properties are **pre-sanitized and XSS-proofed** at the data layer — not at render time.
 
-- `$post->slug`: The machine-friendly identifier (derived from the original filename).
-- `$post->title`: The human-readable title (derived from the slug, pre-escaped).
-- `$post->date`: The last modified date of the markdown file (Format: `YYYY-MM-DD`).
-- `$post->htmlContent`: The complete Markdown article parsed into high-quality HTML, with image paths automatically properly routed.
+| Property | Type | Description |
+|---|---|---|
+| `$post->slug` | `string` | Machine-friendly identifier (derived from the filename). |
+| `$post->title` | `string` | Human-readable title (derived from slug, already escaped). |
+| `$post->date` | `string` | Last-modified date of the `.md` file. Format: `YYYY-MM-DD`. |
+| `$post->htmlContent` | `string` | Full article body parsed from Markdown to HTML, with image paths automatically rewritten to be web-accessible. **Do not escape this** — it is already trusted HTML. |
 
 ---
 
 ## 3. Implementation Example
 
-Here is a clean example of how your logic should flow within the `<body>`:
+The following is a minimal but complete example of how routing and data access should flow within `<body>`. It uses all major API methods — adapt it freely for your own design.
 
 ```php
+<?php
+// Resolve page title before HTML output
+if ($blog->isPost()) {
+    $pageTitle = ($blog->getCurrentPost()?->title ?? 'Post') . ' - Flatblog';
+} elseif ($blog->isSearch()) {
+    $pageTitle = '"' . $blog->getSafeQuery() . '" Search Results - Flatblog';
+} elseif ($blog->isTagSearch()) {
+    $pageTitle = '#' . $blog->getSafeTag() . ' - Flatblog';
+} else {
+    $pageTitle = 'Flatblog';
+}
+
+// Pre-fetch index-based data once (used in card loops)
+$thumbs   = $blog->getThumbs();
+$excerpts = $blog->getExcerpts();
+$postTags = $blog->getPostTags();
+?>
+
 <main>
-    <!-- Tag Cloud (Sidebar/Header) -->
+    <!-- Tag Cloud -->
     <?php $tags = $blog->getTags(50); ?>
     <?php if ($tags): ?>
-        <div class="tag-cloud">
+        <nav class="tag-cloud">
             <?php foreach ($tags as $name => $count): ?>
                 <a href="?tag=<?= urlencode($name) ?>">#<?= htmlspecialchars($name) ?> (<?= $count ?>)</a>
             <?php endforeach; ?>
             <a href="?mode=tags">View all tags</a>
-        </div>
+        </nav>
     <?php endif; ?>
 
-    <!-- Display logic based on mode -->
+    <!-- Home: Article Card Grid -->
     <?php if ($blog->isHome()): ?>
-        <h1>Recent Posts</h1>
-        <?php foreach ($blog->getPosts() as $post): ?>
-            <section>
-                <h2><a href="?post=<?= urlencode($post->slug) ?>"><?= $post->title ?></a></h2>
-                <p><?= $post->date ?></p>
-            </section>
-        <?php endforeach; ?>
+        <?php $posts = $blog->getPosts(); ?>
+        <?php if (empty($posts)): ?>
+            <p>No articles yet.</p>
+        <?php else: ?>
+            <ul class="post-list">
+                <?php foreach ($posts as $post): ?>
+                <?php
+                    $thumb    = $thumbs[$post->slug] ?? null;
+                    $excerpt  = $excerpts[$post->slug] ?? null;
+                    $cardTags = $postTags[$post->slug] ?? [];
+                ?>
+                    <li class="post-card">
+                        <a href="?post=<?= urlencode($post->slug) ?>" class="post-card__link">
+                            <div class="post-card__image" data-has-image="<?= $thumb ? 'true' : 'false' ?>">
+                                <?php if ($thumb): ?>
+                                    <img src="blog/<?= htmlspecialchars($thumb) ?>" alt="" loading="lazy">
+                                <?php endif; ?>
+                            </div>
+                            <div class="post-card__body">
+                                <span class="date"><?= $post->date ?></span>
+                                <h3><?= $post->title ?></h3>
+                                <?php if ($excerpt): ?>
+                                    <p><?= htmlspecialchars($excerpt) ?></p>
+                                <?php endif; ?>
+                                <?php foreach ($cardTags as $t): ?>
+                                    <a href="?tag=<?= urlencode($t) ?>" class="tag-badge">#<?= htmlspecialchars($t) ?></a>
+                                <?php endforeach; ?>
+                            </div>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
 
-    <?php elseif ($blog->isTagsList()): ?>
-        <h1>All Tags (Top 1000)</h1>
-        <?php foreach ($blog->getTags(1000) as $name => $count): ?>
-            <a href="?tag=<?= urlencode($name) ?>">#<?= $name ?> (<?= $count ?>)</a>
-        <?php endforeach; ?>
-
+    <!-- Individual Post -->
     <?php elseif ($blog->isPost()): ?>
         <?php $post = $blog->getCurrentPost(); ?>
         <?php if ($post): ?>
+            <nav><a href="./">← Back to list</a></nav>
             <article>
-                <h1><?= $post->title ?></h1>
-                <?= $post->htmlContent ?>
+                <h2><?= $post->title ?></h2>
+                <p><?= $post->date ?></p>
+                <?= $post->htmlContent /* pre-sanitized HTML — do not escape */ ?>
             </article>
         <?php else: ?>
-            <h1>404 - Not found</h1>
+            <h2>404 — Article not found</h2>
         <?php endif; ?>
+
+    <!-- All Tags Page -->
+    <?php elseif ($blog->isTagsList()): ?>
+        <nav><a href="./">← Back to list</a></nav>
+        <h2>All Tags</h2>
+        <?php foreach ($blog->getTags(1000) as $name => $count): ?>
+            <a href="?tag=<?= urlencode($name) ?>">#<?= htmlspecialchars($name) ?> (<?= $count ?>)</a>
+        <?php endforeach; ?>
 
     <?php endif; ?>
 </main>
 ```
+
+---
+
+## 4. Advanced: Frontend Build Tools
+
+Flatblog's `assets/` directory is a drop-in target for modern build tools.
+
+- Point your Vite `outDir`, Webpack `output.path`, or Tailwind output to `assets/css/` and `assets/js/`.
+- The PHP backend is entirely unaffected — it only references `assets/css/style.css` and `assets/js/script.js`.
+- Built output will be served directly by the PHP frontend container with zero configuration.
+
+👉 **[See the full architecture overview here](ARCHITECTURE.md)**

@@ -5,14 +5,27 @@
 require_once __DIR__ . '/core/FlatblogLoader.php';
 
 // Docker環境でのマウント先である 'blog' ディレクトリを指定してローダーを起動
-$blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog'); 
+$blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
+
+// ページタイトルをモードに応じて動的に生成（グループB）
+if ($blog->isPost()) {
+    $pageTitle = ($blog->getCurrentPost()?->title ?? '記事') . ' - Flatblog';
+} elseif ($blog->isSearch()) {
+    $pageTitle = '「' . $blog->getSafeQuery() . '」の検索結果 - Flatblog';
+} elseif ($blog->isTagSearch()) {
+    $pageTitle = '#' . $blog->getSafeTag() . ' の記事一覧 - Flatblog';
+} elseif ($blog->isTagsList()) {
+    $pageTitle = 'すべてのタグ - Flatblog';
+} else {
+    $pageTitle = 'Flatblog';
+}
 ?>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $blog->isPost() ? $blog->getCurrentPost()?->title . ' - Flatblog' : 'Flatblog' ?></title>
+    <title><?= $pageTitle ?></title>
     <!-- 抽出された外部CSSの読み込み -->
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -29,7 +42,12 @@ $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
     </header>
 
     <main>
-    <?php $tags = $blog->getTags(50); ?>
+    <?php
+        $tags      = $blog->getTags(50);
+        $thumbs    = $blog->getThumbs();
+        $excerpts  = $blog->getExcerpts();
+        $postTags  = $blog->getPostTags();
+    ?>
     <?php if ($tags): ?>
     <div class="tag-cloud">
         <?php foreach ($tags as $tName => $tCount): ?>
@@ -42,15 +60,43 @@ $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
     <!-- 1. 一覧（ホーム）モード -->
     <?php if ($blog->isHome()): ?>
         <h2>最新の記事</h2>
+        <?php $posts = $blog->getPosts(); ?>
+        <?php if (empty($posts)): ?>
+            <p class="empty-state">まだ記事がありません。</p>
+        <?php else: ?>
         <ul class="post-list">
-            <!-- $blog->getPosts() を呼ぶだけで安全な配列が取得できる -->
-            <?php foreach ($blog->getPosts() as $post): ?>
-                <li>
-                    <span class="date"><?= $post->date ?></span>
-                    <a href="?post=<?= urlencode($post->slug) ?>"><?= $post->title ?></a>
+            <?php foreach ($posts as $post): ?>
+            <?php
+                $thumb    = $thumbs[$post->slug] ?? null;
+                $excerpt  = $excerpts[$post->slug] ?? null;
+                $cardTags = $postTags[$post->slug] ?? [];
+            ?>
+                <li class="post-card">
+                    <a href="?post=<?= urlencode($post->slug) ?>" class="post-card__link">
+                        <div class="post-card__image" data-has-image="<?= $thumb ? 'true' : 'false' ?>">
+                            <?php if ($thumb): ?>
+                                <img src="blog/<?= htmlspecialchars($thumb) ?>" alt="" loading="lazy">
+                            <?php endif; ?>
+                        </div>
+                        <div class="post-card__body">
+                            <span class="date"><?= $post->date ?></span>
+                            <h3 class="post-card__title"><?= $post->title ?></h3>
+                            <?php if ($excerpt): ?>
+                                <p class="excerpt"><?= htmlspecialchars($excerpt) ?></p>
+                            <?php endif; ?>
+                            <?php if ($cardTags): ?>
+                                <div class="post-card__tags">
+                                    <?php foreach ($cardTags as $t): ?>
+                                        <a href="?tag=<?= urlencode($t) ?>" class="tag-badge">#<?= htmlspecialchars($t) ?></a>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </a>
                 </li>
             <?php endforeach; ?>
         </ul>
+        <?php endif; ?>
 
     <!-- 2. 検索結果モード -->
     <?php elseif ($blog->isSearch()): ?>
@@ -58,9 +104,33 @@ $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
         <?php if ($blog->getResultCount() > 0): ?>
             <ul class="post-list">
                 <?php foreach ($blog->getPosts() as $post): ?>
-                    <li>
-                        <span class="date"><?= $post->date ?></span>
-                        <a href="?post=<?= urlencode($post->slug) ?>"><?= $post->title ?></a>
+                <?php
+                    $thumb    = $thumbs[$post->slug] ?? null;
+                    $excerpt  = $excerpts[$post->slug] ?? null;
+                    $cardTags = $postTags[$post->slug] ?? [];
+                ?>
+                    <li class="post-card">
+                        <a href="?post=<?= urlencode($post->slug) ?>" class="post-card__link">
+                            <div class="post-card__image" data-has-image="<?= $thumb ? 'true' : 'false' ?>">
+                                <?php if ($thumb): ?>
+                                    <img src="blog/<?= htmlspecialchars($thumb) ?>" alt="" loading="lazy">
+                                <?php endif; ?>
+                            </div>
+                            <div class="post-card__body">
+                                <span class="date"><?= $post->date ?></span>
+                                <h3 class="post-card__title"><?= $post->title ?></h3>
+                                <?php if ($excerpt): ?>
+                                    <p class="excerpt"><?= htmlspecialchars($excerpt) ?></p>
+                                <?php endif; ?>
+                                <?php if ($cardTags): ?>
+                                    <div class="post-card__tags">
+                                        <?php foreach ($cardTags as $t): ?>
+                                            <a href="?tag=<?= urlencode($t) ?>" class="tag-badge">#<?= htmlspecialchars($t) ?></a>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </a>
                     </li>
                 <?php endforeach; ?>
             </ul>
@@ -74,9 +144,33 @@ $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
         <?php if ($blog->getResultCount() > 0): ?>
             <ul class="post-list">
                 <?php foreach ($blog->getPosts() as $post): ?>
-                    <li>
-                        <span class="date"><?= $post->date ?></span>
-                        <a href="?post=<?= urlencode($post->slug) ?>"><?= $post->title ?></a>
+                <?php
+                    $thumb    = $thumbs[$post->slug] ?? null;
+                    $excerpt  = $excerpts[$post->slug] ?? null;
+                    $cardTags = $postTags[$post->slug] ?? [];
+                ?>
+                    <li class="post-card">
+                        <a href="?post=<?= urlencode($post->slug) ?>" class="post-card__link">
+                            <div class="post-card__image" data-has-image="<?= $thumb ? 'true' : 'false' ?>">
+                                <?php if ($thumb): ?>
+                                    <img src="blog/<?= htmlspecialchars($thumb) ?>" alt="" loading="lazy">
+                                <?php endif; ?>
+                            </div>
+                            <div class="post-card__body">
+                                <span class="date"><?= $post->date ?></span>
+                                <h3 class="post-card__title"><?= $post->title ?></h3>
+                                <?php if ($excerpt): ?>
+                                    <p class="excerpt"><?= htmlspecialchars($excerpt) ?></p>
+                                <?php endif; ?>
+                                <?php if ($cardTags): ?>
+                                    <div class="post-card__tags">
+                                        <?php foreach ($cardTags as $t): ?>
+                                            <a href="?tag=<?= urlencode($t) ?>" class="tag-badge">#<?= htmlspecialchars($t) ?></a>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </a>
                     </li>
                 <?php endforeach; ?>
             </ul>
@@ -88,22 +182,31 @@ $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
     <?php elseif ($blog->isPost()): ?>
         <?php $post = $blog->getCurrentPost(); ?>
         <?php if ($post): ?>
+            <!-- 戻るナビゲーション（グループB N°9）-->
+            <nav class="breadcrumb">
+                <a href="./">← 記事一覧に戻る</a>
+            </nav>
             <article>
                 <h2><?= $post->title ?></h2>
                 <div class="date" style="margin-bottom: 20px;">更新日: <?= $post->date ?></div>
                 <div class="content">
-                    <!-- ParsedownによるHTML変換済み・パス修正済みの内容 -->
+                    <!-- ParsedownによるHTML変換済・パス修正済みの内容 -->
                     <?= $post->htmlContent ?>
                 </div>
             </article>
         <?php else: ?>
             <!-- Rule of silence: エラーを出さずHTML側で制御 -->
+            <nav class="breadcrumb"><a href="./">← 記事一覧に戻る</a></nav>
             <h2>記事が見つかりません</h2>
             <p>お探しの記事は削除されたか、URLが間違っている可能性があります。</p>
         <?php endif; ?>
 
     <!-- 5. タグ一覧モード -->
     <?php elseif ($blog->isTagsList()): ?>
+        <!-- 戻るナビゲーション（グループB N°13）-->
+        <nav class="breadcrumb">
+            <a href="./">← 記事一覧に戻る</a>
+        </nav>
         <h2>すべてのタグ (上位1000件)</h2>
         <div class="tag-cloud large">
             <?php foreach ($blog->getTags(1000) as $tName => $tCount): ?>

@@ -1,6 +1,7 @@
 <?php
 // ==========================================
-// Flatblog タグインデックス非同期ビルダ
+// Flatblog 記事インデックス非同期ビルダ
+// タグ・サムネイル・要約を一括インデックス化
 // (Rule of Silence 遵守: 成功時は無言)
 // ==========================================
 if (php_sapi_name() !== 'cli') {
@@ -20,13 +21,15 @@ if ($files === false) {
 }
 
 $tagCounts = [];
-$tagMap = [];
+$tagMap    = [];
+$thumbs    = [];
+$excerpts  = [];
 
 foreach ($files as $filePath) {
     $filename = basename($filePath, '.md');
     $content = file_get_contents($filePath);
-    
-    // #tag を本文から抽出（直前に空白または行頭があり、#の後ろに空白がない文字列）
+
+    // ── ①タグ抽出（直前に空白または行頭、#の後ろに空白がない文字列）──
     if (preg_match_all('/(?:^|\s)#([^\s#]+)/u', $content, $matches)) {
         $uniqueTagsInFile = array_unique($matches[1]);
         foreach ($uniqueTagsInFile as $tag) {
@@ -38,14 +41,33 @@ foreach ($files as $filePath) {
             $tagMap[$tag][] = $filename;
         }
     }
+
+    // ── ②サムネイル：Markdownから最初のローカル画像パスを抽出 ──
+    // (Rule of Silence: 画像がない場合は null)
+    $thumb = null;
+    if (preg_match('/!\[.*?\]\((attachments\/[^\)]+)\)/u', $content, $imgMatch)) {
+        $thumb = $imgMatch[1];
+    }
+    $thumbs[$filename] = $thumb;
+
+    // ── ③要約：Markdown記法を除去して冒頭200文字を抽出 ──
+    // (Rule of Silence: 本文が空の場合は null)
+    $plain = preg_replace('/(?:^|\s)#[^\s#]+/u', '', $content);    // #タグ行除去
+    $plain = preg_replace('/!\[.*?\]\(.*?\)/u', '', $plain);        // 画像記法除去
+    $plain = preg_replace('/\[([^\]]+)\]\([^\)]+\)/u', '$1', $plain); // リンク→テキスト
+    $plain = preg_replace('/[#*`_~>|\-]+/u', '', $plain);           // その他Markdown記号除去
+    $plain = trim(preg_replace('/\s+/u', ' ', $plain));             // 空白正規化
+    $excerpts[$filename] = mb_strlen($plain) > 0 ? mb_substr($plain, 0, 200) : null;
 }
 
 // カウントが多い順にソート
 arsort($tagCounts);
 
 $indexData = [
-    'counts' => $tagCounts,
-    'map' => $tagMap
+    'counts'   => $tagCounts,
+    'map'      => $tagMap,
+    'thumbs'   => $thumbs,
+    'excerpts' => $excerpts,
 ];
 
 $cacheDir = dirname(__DIR__) . '/cache';
