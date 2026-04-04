@@ -50,13 +50,15 @@ After starting the containers:
 To keep your blog posts clean and prevent tags from being rendered as large headers, follow this standard tagging convention at the top of your Markdown files:
 
 ```markdown
-`#tag1 #tag2`
-```
+` #tag1 #tag2 `
 
 Your content starts here...
+```
 
-**Why use backticks?**
-Standard Markdown engines (including Parsedown) often treat a `#tag` at the start of a line as a Level 1 Heading. By enclosing your tags in backticks (`` ` ``), you prevent them from rendering as headers while allowing Flatblog's background processor to correctly extract and index them.
+**Why use backticks with spaces?**
+Standard Markdown engines (including Parsedown) often treat a `#tag` at the start of a line as a Level 1 Heading. By enclosing your tags in backticks with **leading and trailing spaces** ( `` ` #tags ` `` ), you prevent header rendering while ensuring Flatblog's processor extracts the tags accurately. 
+
+> **Note:** The internal spaces are required to prevent the final backtick from being accidentally parsed as part of the last tag name.
 
 ---
 
