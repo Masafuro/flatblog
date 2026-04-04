@@ -8,20 +8,22 @@ require_once __DIR__ . '/core/FlatblogLoader.php';
 $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
 
 // ページタイトルをモードに応じて動的に生成（グループB）
+$lang = require __DIR__ . '/core/lang/en.php';
+
 if ($blog->isPost()) {
-    $pageTitle = ($blog->getCurrentPost()?->title ?? '記事') . ' - Flatblog';
+    $pageTitle = ($blog->getCurrentPost()?->title ?? $lang['page_title_post']) . ' - Flatblog';
 } elseif ($blog->isSearch()) {
-    $pageTitle = '「' . $blog->getSafeQuery() . '」の検索結果 - Flatblog';
+    $pageTitle = sprintf($lang['page_title_search'], $blog->getSafeQuery());
 } elseif ($blog->isTagSearch()) {
-    $pageTitle = '#' . $blog->getSafeTag() . ' の記事一覧 - Flatblog';
+    $pageTitle = sprintf($lang['page_title_tag'], $blog->getSafeTag());
 } elseif ($blog->isTagsList()) {
-    $pageTitle = 'すべてのタグ - Flatblog';
+    $pageTitle = $lang['page_title_tags_list'];
 } else {
-    $pageTitle = 'Flatblog';
+    $pageTitle = $lang['page_title_default'];
 }
 ?>
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="<?= $lang['html_lang'] ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,8 +37,8 @@ if ($blog->isPost()) {
         <div class="search-box">
             <!-- 検索窓。getSafeQuery() により、XSSを注入されても自動で無毒化された文字列が戻る -->
             <form method="get" action="./">
-                <input type="search" name="q" value="<?= $blog->getSafeQuery() ?>" placeholder="記事を検索...">
-                <button type="submit">検索</button>
+                <input type="search" name="q" value="<?= $blog->getSafeQuery() ?>" placeholder="<?= $lang['search_placeholder'] ?>">
+                <button type="submit"><?= $lang['search_button'] ?></button>
             </form>
         </div>
     </header>
@@ -53,16 +55,16 @@ if ($blog->isPost()) {
         <?php foreach ($tags as $tName => $tCount): ?>
             <a href="?tag=<?= urlencode($tName) ?>">#<?= htmlspecialchars($tName) ?> (<?= $tCount ?>)</a>
         <?php endforeach; ?>
-        <a href="?mode=tags" class="tag-list-link">📁すべてのタグを見る</a>
+        <a href="?mode=tags" class="tag-list-link"><?= $lang['link_all_tags'] ?></a>
     </div>
     <?php endif; ?>
 
     <!-- 1. 一覧（ホーム）モード -->
     <?php if ($blog->isHome()): ?>
-        <h2>最新の記事</h2>
+        <h2><?= $lang['header_latest_posts'] ?></h2>
         <?php $posts = $blog->getPosts(); ?>
         <?php if (empty($posts)): ?>
-            <p class="empty-state">まだ記事がありません。</p>
+            <p class="empty-state"><?= $lang['empty_no_posts'] ?></p>
         <?php else: ?>
         <ul class="post-list">
             <?php foreach ($posts as $post): ?>
@@ -101,9 +103,9 @@ if ($blog->isPost()) {
     <!-- 2. 検索結果モード -->
     <?php elseif ($blog->isSearch()): ?>
         <nav class="breadcrumb">
-            <a href="./">← 記事一覧に戻る</a>
+            <a href="./"><?= $lang['link_back_to_list'] ?></a>
         </nav>
-        <h2>「<?= $blog->getSafeQuery() ?>」の検索結果 (<?= $blog->getResultCount() ?>件)</h2>
+        <h2><?= sprintf($lang['search_results_count'], $blog->getSafeQuery(), $blog->getResultCount()) ?></h2>
         <?php if ($blog->getResultCount() > 0): ?>
             <ul class="post-list">
                 <?php foreach ($blog->getPosts() as $post): ?>
@@ -138,15 +140,15 @@ if ($blog->isPost()) {
                 <?php endforeach; ?>
             </ul>
         <?php else: ?>
-            <p>該当する記事は見つかりませんでした。</p>
+            <p><?= $lang['search_no_results'] ?></p>
         <?php endif; ?>
 
     <!-- 3. タグ検索モード -->
     <?php elseif ($blog->isTagSearch()): ?>
         <nav class="breadcrumb">
-            <a href="./">← 記事一覧に戻る</a>
+            <a href="./"><?= $lang['link_back_to_list'] ?></a>
         </nav>
-        <h2>「#<?= $blog->getSafeTag() ?>」の記事一覧 (<?= $blog->getResultCount() ?>件)</h2>
+        <h2><?= sprintf($lang['tag_posts_count'], $blog->getSafeTag(), $blog->getResultCount()) ?></h2>
         <?php if ($blog->getResultCount() > 0): ?>
             <ul class="post-list">
                 <?php foreach ($blog->getPosts() as $post): ?>
@@ -181,7 +183,7 @@ if ($blog->isPost()) {
                 <?php endforeach; ?>
             </ul>
         <?php else: ?>
-            <p>該当するタグの記事は見つかりませんでした。</p>
+            <p><?= $lang['tag_no_results'] ?></p>
         <?php endif; ?>
 
     <!-- 4. 個別記事モード -->
@@ -190,11 +192,11 @@ if ($blog->isPost()) {
         <?php if ($post): ?>
             <!-- 戻るナビゲーション（グループB N°9）-->
             <nav class="breadcrumb">
-                <a href="./">← 記事一覧に戻る</a>
+                <a href="./"><?= $lang['link_back_to_list'] ?></a>
             </nav>
             <article>
                 <h2><?= $post->title ?></h2>
-                <div class="date" style="margin-bottom: 10px;">更新日: <?= $post->date ?></div>
+                <div class="date" style="margin-bottom: 10px;"><?= sprintf($lang['post_updated_at'], $post->date) ?></div>
                 <?php $cardTags = $postTags[$post->slug] ?? []; ?>
                 <?php if ($cardTags): ?>
                     <div class="post-card__tags" style="margin-bottom: 20px;">
@@ -210,18 +212,18 @@ if ($blog->isPost()) {
             </article>
         <?php else: ?>
             <!-- Rule of silence: エラーを出さずHTML側で制御 -->
-            <nav class="breadcrumb"><a href="./">← 記事一覧に戻る</a></nav>
-            <h2>記事が見つかりません</h2>
-            <p>お探しの記事は削除されたか、URLが間違っている可能性があります。</p>
+            <nav class="breadcrumb"><a href="./"><?= $lang['link_back_to_list'] ?></a></nav>
+            <h2><?= $lang['error_post_not_found'] ?></h2>
+            <p><?= $lang['error_post_not_found_msg'] ?></p>
         <?php endif; ?>
 
     <!-- 5. タグ一覧モード -->
     <?php elseif ($blog->isTagsList()): ?>
         <!-- 戻るナビゲーション（グループB N°13）-->
         <nav class="breadcrumb">
-            <a href="./">← 記事一覧に戻る</a>
+            <a href="./"><?= $lang['link_back_to_list'] ?></a>
         </nav>
-        <h2>すべてのタグ (上位1000件)</h2>
+        <h2><?= $lang['tags_list_header'] ?></h2>
         <div class="tag-cloud large">
             <?php foreach ($blog->getTags(1000) as $tName => $tCount): ?>
                 <a href="?tag=<?= urlencode($tName) ?>">#<?= htmlspecialchars($tName) ?> (<?= $tCount ?>)</a>
