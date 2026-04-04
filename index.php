@@ -194,7 +194,15 @@ if ($blog->isPost()) {
             </nav>
             <article>
                 <h2><?= $post->title ?></h2>
-                <div class="date" style="margin-bottom: 20px;">更新日: <?= $post->date ?></div>
+                <div class="date" style="margin-bottom: 10px;">更新日: <?= $post->date ?></div>
+                <?php $cardTags = $postTags[$post->slug] ?? []; ?>
+                <?php if ($cardTags): ?>
+                    <div class="post-card__tags" style="margin-bottom: 20px;">
+                        <?php foreach ($cardTags as $t): ?>
+                            <a href="?tag=<?= urlencode($t) ?>" class="tag-badge">#<?= htmlspecialchars($t) ?></a>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
                 <div class="content">
                     <!-- ParsedownによるHTML変換済・パス修正済みの内容 -->
                     <?= $post->htmlContent ?>
