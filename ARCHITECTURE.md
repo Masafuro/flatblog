@@ -9,6 +9,8 @@ This document describes the internal design decisions, data flow, and structural
 ```
 flatblog/
 ├── index.php               # The single entry point & theme template
+├── lang/                   # Theme labels and site-wide labels (PHP arrays)
+│   └── en.php              # Default language (English)
 ├── core/
 │   ├── FlatblogLoader.php  # Data provider class (the only PHP API surface)
 │   ├── Post.php            # Read-only Post DTO
@@ -40,7 +42,10 @@ HTTP Request
     ▼
 index.php  ──────────────────────────────────>  HTML Response
     │                                                 ▲
-    │  instantiates                                   │
+    │  1. loads labels from                           │
+    ├── lang/*.php                                    │
+    │                                                 │
+    │  2. instantiates                                │
     ▼                                                 │
 FlatblogLoader                                        │
     │  reads (via URL params)                         │

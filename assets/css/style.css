@@ -5,123 +5,304 @@
    例: 外部CSSで :root { --color-accent: #e83e8c; } と再定義するだけです。
    =================================================== */
 :root {
-  /* Colors (Monochrome 16 Palette) */
-  --color-bg:            #ffffff; /* P15: Background */
-  --color-text:          #282828; /* P2: Main Text */
-  --color-accent:        #000000; /* P0: Accent (Links/Headers) */
-  --color-surface:       #e7e7e7; /* P14: Surface (Tag cloud etc) */
-  --color-border:        #d1d1d1; /* P13: Border */
-  --color-border-subtle: #e7e7e7; /* P14: Subtle border */
-  --color-muted:         #7e7e7e; /* P8: Muted text/dates */
-  --color-excerpt:       #474747; /* P4: Article excerpts */
-  --color-tag-bg:        #ffffff; /* P15: Tag background - stands out on surface */
-  --color-tag-text:      #474747; /* P4: Tag text */
-  --color-tag-hover:     #d1d1d1; /* P13: Tag hover */
-  --color-gradient-a:    #474747; /* P4: Fallback Gradient A */
-  --color-gradient-b:    #7e7e7e; /* P8: Fallback Gradient B */
-  /* Typography */
-  --font-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  /* Layout */
-  --max-width:   800px;
-  --radius-card: 10px;
-  --radius-tag:  20px;
+   /* Colors (Monochrome 16 Palette) */
+   --color-bg: #ffffff;
+   /* P15: Background */
+   --color-text: #282828;
+   /* P2: Main Text */
+   --color-accent: #000000;
+   /* P0: Accent (Links/Headers) */
+   --color-surface: #e7e7e7;
+   /* P14: Surface (Tag cloud etc) */
+   --color-border: #d1d1d1;
+   /* P13: Border */
+   --color-border-subtle: #e7e7e7;
+   /* P14: Subtle border */
+   --color-muted: #7e7e7e;
+   /* P8: Muted text/dates */
+   --color-excerpt: #474747;
+   /* P4: Article excerpts */
+   --color-tag-bg: #ffffff;
+   /* P15: Tag background - stands out on surface */
+   --color-tag-text: #474747;
+   /* P4: Tag text */
+   --color-tag-hover: #d1d1d1;
+   /* P13: Tag hover */
+   --color-gradient-a: #474747;
+   /* P4: Fallback Gradient A */
+   --color-gradient-b: #7e7e7e;
+   /* P8: Fallback Gradient B */
+   /* Typography */
+   --font-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+   /* Layout */
+   --max-width: 800px;
+   --radius-card: 10px;
+   --radius-tag: 20px;
 }
 
 /* ===================================================
    ダークモード（OSの設定に自動追従）
    =================================================== */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg:            #181818; /* P1: Background */
-    --color-text:          #e7e7e7; /* P14: Main Text */
-    --color-accent:        #ffffff; /* P15: Accent (Links/Headers) */
-    --color-surface:       #282828; /* P2: Elevation surface */
-    --color-border:        #383838; /* P3: Border */
-    --color-border-subtle: #282828; /* P2: Subtle border */
-    --color-muted:         #8c8c8c; /* P9: Muted text/dates */
-    --color-excerpt:       #ababab; /* P11: Article excerpts */
-    --color-tag-bg:        #383838; /* P3: Tag background */
-    --color-tag-text:      #d1d1d1; /* P13: Tag text */
-    --color-tag-hover:     #474747; /* P4: Tag hover */
-    --color-gradient-a:    #282828; /* P2: Fallback Gradient A */
-    --color-gradient-b:    #474747; /* P4: Fallback Gradient B */
-  }
+   :root {
+      --color-bg: #181818;
+      /* P1: Background */
+      --color-text: #e7e7e7;
+      /* P14: Main Text */
+      --color-accent: #ffffff;
+      /* P15: Accent (Links/Headers) */
+      --color-surface: #282828;
+      /* P2: Elevation surface */
+      --color-border: #383838;
+      /* P3: Border */
+      --color-border-subtle: #282828;
+      /* P2: Subtle border */
+      --color-muted: #8c8c8c;
+      /* P9: Muted text/dates */
+      --color-excerpt: #ababab;
+      /* P11: Article excerpts */
+      --color-tag-bg: #383838;
+      /* P3: Tag background */
+      --color-tag-text: #d1d1d1;
+      /* P13: Tag text */
+      --color-tag-hover: #474747;
+      /* P4: Tag hover */
+      --color-gradient-a: #282828;
+      /* P2: Fallback Gradient A */
+      --color-gradient-b: #474747;
+      /* P4: Fallback Gradient B */
+   }
 }
 
 
 /* ===================================================
    ベースレイアウト・タイポグラフィ
    =================================================== */
-body { font-family: var(--font-base); max-width: var(--max-width); margin: 0 auto; padding: 20px; line-height: 1.6; color: var(--color-text); background-color: var(--color-bg); }
-header { border-bottom: 2px solid var(--color-text); margin-bottom: 20px; padding-bottom: 15px; text-align: center; }
-header h1 { margin: 0 0 10px 0; }
-h1 a { text-decoration: none; color: var(--color-text); }
-/* .post-list は下部のカードグリッド定義で一元管理 */
-.date { color: var(--color-muted); font-size: 0.85em; margin-right: 15px; }
-a { color: var(--color-accent); text-decoration: underline; }
-a:hover { text-decoration: none; }
+body {
+   font-family: var(--font-base);
+   max-width: var(--max-width);
+   margin: 0 auto;
+   padding: 20px;
+   line-height: 1.6;
+   color: var(--color-text);
+   background-color: var(--color-bg);
+}
 
-img { max-width: 100%; height: auto; border-radius: 8px; }
-.search-box input { padding: 5px; }
-article { margin-top: 20px; }
-footer { margin-top: 50px; text-align: center; color: var(--color-muted); font-size: 0.9em; border-top: 1px solid var(--color-border-subtle); padding-top: 20px; }
+header {
+   border-bottom: 2px solid var(--color-text);
+   margin-bottom: 20px;
+   padding-bottom: 15px;
+   text-align: center;
+}
+
+header h1 {
+   margin: 0 0 10px 0;
+}
+
+h1 a {
+   text-decoration: none;
+   color: var(--color-text);
+}
+
+/* .post-list は下部のカードグリッド定義で一元管理 */
+.date {
+   color: var(--color-muted);
+   font-size: 0.85em;
+   margin-right: 15px;
+}
+
+a {
+   color: var(--color-accent);
+   text-decoration: underline;
+}
+
+a:hover {
+   text-decoration: none;
+}
+
+img {
+   max-width: 100%;
+   height: auto;
+   border-radius: 8px;
+}
+
+.search-box input {
+   padding: 5px;
+}
+
+article {
+   margin-top: 20px;
+}
+
+footer {
+   margin-top: 50px;
+   text-align: center;
+   color: var(--color-muted);
+   font-size: 0.9em;
+   border-top: 1px solid var(--color-border-subtle);
+   padding-top: 20px;
+}
 
 /* ===================================================
    タグクラウド
    =================================================== */
-.tag-cloud { margin-bottom: 20px; padding: 15px; background: var(--color-surface); border-radius: 8px; }
-.tag-cloud a { display: inline-block; margin: 0 10px 5px 0; background: var(--color-tag-bg); color: var(--color-tag-text); padding: 4px 10px; border-radius: var(--radius-tag); font-size: 0.9em; text-decoration: none; }
-.tag-cloud a:hover { background: var(--color-tag-hover); }
+.tag-cloud {
+   margin-bottom: 20px;
+   padding: 15px;
+   background: var(--color-surface);
+   border-radius: 8px;
+}
+
+.tag-cloud a {
+   display: inline-block;
+   margin: 0 10px 5px 0;
+   background: var(--color-tag-bg);
+   color: var(--color-tag-text);
+   padding: 4px 10px;
+   border-radius: var(--radius-tag);
+   font-size: 0.9em;
+   text-decoration: none;
+}
+
+.tag-cloud a:hover {
+   background: var(--color-tag-hover);
+}
+
 /* タグ一覧ページ（?mode=tags）専用の大きめ表示 */
-.tag-cloud.large { padding: 20px; }
-.tag-cloud.large a { font-size: 1em; padding: 6px 14px; margin: 0 8px 8px 0; }
+.tag-cloud.large {
+   padding: 20px;
+}
+
+.tag-cloud.large a {
+   font-size: 1em;
+   padding: 6px 14px;
+   margin: 0 8px 8px 0;
+}
 
 /* ===================================================
    記事カード
    =================================================== */
-.post-list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-.post-card { border: 1px solid var(--color-border); border-radius: var(--radius-card); overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; }
-.post-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); transform: translateY(-2px); }
-.post-card__link { display: block; text-decoration: none; color: inherit; }
-.post-card__link:hover { text-decoration: none; }
+.post-list {
+   list-style: none;
+   padding: 0;
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+   gap: 20px;
+}
+
+.post-card {
+   border: 1px solid var(--color-border);
+   border-radius: var(--radius-card);
+   overflow: hidden;
+   transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.post-card:hover {
+   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+   transform: translateY(-2px);
+}
+
+.post-card__link {
+   display: block;
+   text-decoration: none;
+   color: inherit;
+}
+
+.post-card__link:hover {
+   text-decoration: none;
+}
 
 /* サムネイル領域：画像ありは写真を表示、なしはグラデーションフォールバック */
 .post-card__image {
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-    background: linear-gradient(135deg, var(--color-gradient-a) 0%, var(--color-gradient-b) 100%);
+   aspect-ratio: 16 / 9;
+   overflow: hidden;
+   background: linear-gradient(135deg, var(--color-gradient-a) 0%, var(--color-gradient-b) 100%);
 }
-.post-card__image[data-has-image="true"] { background: none; }
-.post-card__image img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 0; }
 
-.post-card__body { padding: 12px 16px 16px; }
-.post-card__title { margin: 4px 0 8px; font-size: 1rem; font-weight: 600; color: var(--color-text); line-height: 1.4; }
+.post-card__image[data-has-image="true"] {
+   background: none;
+}
+
+.post-card__image img {
+   width: 100%;
+   height: 100%;
+   object-fit: cover;
+   display: block;
+   border-radius: 0;
+}
+
+.post-card__body {
+   padding: 12px 16px 16px;
+}
+
+.post-card__title {
+   margin: 4px 0 8px;
+   font-size: 1rem;
+   font-weight: 600;
+   color: var(--color-text);
+   line-height: 1.4;
+}
+
 .excerpt {
-    font-size: 0.82em;
-    color: var(--color-excerpt);
-    margin: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-height: 1.5;
+   font-size: 0.82em;
+   color: var(--color-excerpt);
+   margin: 0;
+   display: -webkit-box;
+   -webkit-line-clamp: 3;
+   line-clamp: 3;
+   -webkit-box-orient: vertical;
+   overflow: hidden;
+   line-height: 1.5;
 }
 
 /* ===================================================
    記事カード内タグバッジ
    =================================================== */
-.post-card__tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 4px; }
-.tag-badge { font-size: 0.75em; background: var(--color-tag-bg); color: var(--color-tag-text); padding: 2px 8px; border-radius: var(--radius-tag); text-decoration: none; }
-.tag-badge:hover { background: var(--color-tag-hover); text-decoration: none; }
+.post-card__tags {
+   margin-top: 8px;
+   display: flex;
+   flex-wrap: wrap;
+   gap: 4px;
+}
+
+.tag-badge {
+   font-size: 0.75em;
+   background: var(--color-tag-bg);
+   color: var(--color-tag-text);
+   padding: 2px 8px;
+   border-radius: var(--radius-tag);
+   text-decoration: none;
+}
+
+.tag-badge:hover {
+   background: var(--color-tag-hover);
+   text-decoration: none;
+}
 
 /* ===================================================
    ナビゲーション（戻るリンク）
    =================================================== */
-.breadcrumb { margin-bottom: 16px; }
-.breadcrumb a { color: var(--color-muted); font-size: 0.9em; text-decoration: none; }
-.breadcrumb a:hover { color: var(--color-text); text-decoration: underline; }
+.breadcrumb {
+   margin-bottom: 16px;
+}
+
+.breadcrumb a {
+   color: var(--color-muted);
+   font-size: 0.9em;
+   text-decoration: none;
+}
+
+.breadcrumb a:hover {
+   color: var(--color-text);
+   text-decoration: underline;
+}
 
 /* ===================================================
    空状態メッセージ
    =================================================== */
-.empty-state { color: var(--color-muted); text-align: center; padding: 60px 0; font-size: 1.1em; }
+.empty-state {
+   color: var(--color-muted);
+   text-align: center;
+   padding: 60px 0;
+   font-size: 1.1em;
+}

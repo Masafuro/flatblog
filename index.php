@@ -8,10 +8,10 @@ require_once __DIR__ . '/core/FlatblogLoader.php';
 $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
 
 // ページタイトルをモードに応じて動的に生成（グループB）
-$lang = require __DIR__ . '/core/lang/en.php';
+$lang = require __DIR__ . '/lang/en.php';
 
 if ($blog->isPost()) {
-    $pageTitle = ($blog->getCurrentPost()?->title ?? $lang['page_title_post']) . ' - Flatblog';
+    $pageTitle = ($blog->getCurrentPost()?->title ?? $lang['page_title_post']) . ' - ' . $lang['page_title_default'];
 } elseif ($blog->isSearch()) {
     $pageTitle = sprintf($lang['page_title_search'], $blog->getSafeQuery());
 } elseif ($blog->isTagSearch()) {

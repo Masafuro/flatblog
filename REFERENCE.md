@@ -97,15 +97,18 @@ The following is a minimal but complete example of how routing and data access s
 
 ```php
 <?php
-// Resolve page title before HTML output
+// 1. Resolve site-wide labels and site title
+$lang = require __DIR__ . '/lang/en.php';
+
+// 2. Resolve page title before HTML output
 if ($blog->isPost()) {
-    $pageTitle = ($blog->getCurrentPost()?->title ?? 'Post') . ' - Flatblog';
+    $pageTitle = ($blog->getCurrentPost()?->title ?? $lang['page_title_post']) . ' - ' . $lang['page_title_default'];
 } elseif ($blog->isSearch()) {
-    $pageTitle = '"' . $blog->getSafeQuery() . '" Search Results - Flatblog';
+    $pageTitle = sprintf($lang['page_title_search'], $blog->getSafeQuery());
 } elseif ($blog->isTagSearch()) {
-    $pageTitle = '#' . $blog->getSafeTag() . ' - Flatblog';
+    $pageTitle = sprintf($lang['page_title_tag'], $blog->getSafeTag());
 } else {
-    $pageTitle = 'Flatblog';
+    $pageTitle = $lang['page_title_default'];
 }
 
 // Pre-fetch index-based data once (used in card loops)
@@ -166,20 +169,20 @@ $postTags = $blog->getPostTags();
     <?php elseif ($blog->isPost()): ?>
         <?php $post = $blog->getCurrentPost(); ?>
         <?php if ($post): ?>
-            <nav><a href="./">← Back to list</a></nav>
+            <nav><a href="./"><?= $lang['link_back_to_list'] ?></a></nav>
             <article>
                 <h2><?= $post->title ?></h2>
-                <p><?= $post->date ?></p>
+                <p><?= sprintf($lang['post_updated_at'], $post->date) ?></p>
                 <?= $post->htmlContent /* pre-sanitized HTML — do not escape */ ?>
             </article>
         <?php else: ?>
-            <h2>404 — Article not found</h2>
+            <h2><?= $lang['error_post_not_found'] ?></h2>
         <?php endif; ?>
 
     <!-- All Tags Page -->
     <?php elseif ($blog->isTagsList()): ?>
-        <nav><a href="./">← Back to list</a></nav>
-        <h2>All Tags</h2>
+        <nav><a href="./"><?= $lang['link_back_to_list'] ?></a></nav>
+        <h2><?= $lang['tags_list_header'] ?></h2>
         <?php foreach ($blog->getTags(1000) as $name => $count): ?>
             <a href="?tag=<?= urlencode($name) ?>">#<?= htmlspecialchars($name) ?> (<?= $count ?>)</a>
         <?php endforeach; ?>
@@ -187,6 +190,31 @@ $postTags = $blog->getPostTags();
     <?php endif; ?>
 </main>
 ```
+
+---
+
+## 4. Localization & Custom Labels
+
+Flatblog separates site-wide text (labels, button texts, page title formats) into simple PHP files. This makes it easy to change your blog's language or override specific terminology.
+
+### How to use labels
+All labels are stored in the `$lang` array, which you load at the top of `index.php`:
+```php
+$lang = require __DIR__ . '/lang/en.php';
+```
+
+### Modifying site names
+The site name "Flatblog" is defined in `lang/en.php` under the key `page_title_default`. Changing it there will update the `<title>` across all pages and the default header name.
+
+### Adding a new language
+To add support for a new language (e.g., Japanese):
+1.  Create a new file: `lang/ja.php`.
+2.  Copy the contents of `lang/en.php` into it and translate the strings.
+3.  In `index.php`, change the require path:
+    ```php
+    $lang = require __DIR__ . '/lang/ja.php';
+    ```
+
 
 ---
 
