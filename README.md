@@ -62,6 +62,12 @@ Standard Markdown engines (including Parsedown) often treat a `#tag` at the star
 
 ---
 
+## THANKS
+
+- flatnotes: https://github.com/dullage/flatnotes
+- Parsedown: https://github.com/erusev/parsedown
+- grayscale-16: https://lospec.com/palette-list/grayscale-16
+
 ## 🎨 How to Customize
 
 Flatblog's frontend is divided into clean, extensible layers:
