@@ -5,20 +5,20 @@
    例: 外部CSSで :root { --color-accent: #e83e8c; } と再定義するだけです。
    =================================================== */
 :root {
-  /* Colors */
-  --color-bg:            #ffffff;
-  --color-text:          #333333;
-  --color-accent:        #0066cc;
-  --color-surface:       #f8f9fa;
-  --color-border:        #e2e8f0;
-  --color-border-subtle: #eeeeee;
-  --color-muted:         #888888;
-  --color-excerpt:       #666666;
-  --color-tag-bg:        #e2e8f0;
-  --color-tag-text:      #4a5568;
-  --color-tag-hover:     #cbd5e0;
-  --color-gradient-a:    #667eea;
-  --color-gradient-b:    #764ba2;
+  /* Colors (Monochrome 16 Palette) */
+  --color-bg:            #ffffff; /* P15: Background */
+  --color-text:          #282828; /* P2: Main Text */
+  --color-accent:        #000000; /* P0: Accent (Links/Headers) */
+  --color-surface:       #e7e7e7; /* P14: Surface (Tag cloud etc) */
+  --color-border:        #d1d1d1; /* P13: Border */
+  --color-border-subtle: #e7e7e7; /* P14: Subtle border */
+  --color-muted:         #7e7e7e; /* P8: Muted text/dates */
+  --color-excerpt:       #474747; /* P4: Article excerpts */
+  --color-tag-bg:        #ffffff; /* P15: Tag background - stands out on surface */
+  --color-tag-text:      #474747; /* P4: Tag text */
+  --color-tag-hover:     #d1d1d1; /* P13: Tag hover */
+  --color-gradient-a:    #474747; /* P4: Fallback Gradient A */
+  --color-gradient-b:    #7e7e7e; /* P8: Fallback Gradient B */
   /* Typography */
   --font-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   /* Layout */
@@ -32,19 +32,22 @@
    =================================================== */
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-bg:            #1a1a2e;
-    --color-text:          #e0e0e0;
-    --color-accent:        #6699ff;
-    --color-surface:       #16213e;
-    --color-border:        #2a2a4a;
-    --color-border-subtle: #2a2a4a;
-    --color-muted:         #aaaaaa;
-    --color-excerpt:       #999999;
-    --color-tag-bg:        #2a2a4a;
-    --color-tag-text:      #b0b0cc;
-    --color-tag-hover:     #3a3a5a;
+    --color-bg:            #181818; /* P1: Background */
+    --color-text:          #e7e7e7; /* P14: Main Text */
+    --color-accent:        #ffffff; /* P15: Accent (Links/Headers) */
+    --color-surface:       #282828; /* P2: Elevation surface */
+    --color-border:        #383838; /* P3: Border */
+    --color-border-subtle: #282828; /* P2: Subtle border */
+    --color-muted:         #8c8c8c; /* P9: Muted text/dates */
+    --color-excerpt:       #ababab; /* P11: Article excerpts */
+    --color-tag-bg:        #383838; /* P3: Tag background */
+    --color-tag-text:      #d1d1d1; /* P13: Tag text */
+    --color-tag-hover:     #474747; /* P4: Tag hover */
+    --color-gradient-a:    #282828; /* P2: Fallback Gradient A */
+    --color-gradient-b:    #474747; /* P4: Fallback Gradient B */
   }
 }
+
 
 /* ===================================================
    ベースレイアウト・タイポグラフィ
@@ -55,8 +58,9 @@ header h1 { margin: 0 0 10px 0; }
 h1 a { text-decoration: none; color: var(--color-text); }
 /* .post-list は下部のカードグリッド定義で一元管理 */
 .date { color: var(--color-muted); font-size: 0.85em; margin-right: 15px; }
-a { color: var(--color-accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
+a { color: var(--color-accent); text-decoration: underline; }
+a:hover { text-decoration: none; }
+
 img { max-width: 100%; height: auto; border-radius: 8px; }
 .search-box input { padding: 5px; }
 article { margin-top: 20px; }
