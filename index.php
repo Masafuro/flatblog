@@ -7,19 +7,29 @@ require_once __DIR__ . '/core/FlatblogLoader.php';
 // Docker環境でのマウント先である 'blog' ディレクトリを指定してローダーを起動
 $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
 
-// ページタイトルをモードに応じて動的に生成（グループB）
-$lang = require __DIR__ . '/lang/en.php';
+// 言語・データの事前取得
+$lang      = require __DIR__ . '/lang/en.php';
+$thumbs    = $blog->getThumbs();
+$excerpts  = $blog->getExcerpts();
+$postTags  = $blog->getPostTags();
 
+// ページタイトルとメタ記述をモードに応じて動的に生成
 if ($blog->isPost()) {
-    $pageTitle = ($blog->getCurrentPost()?->title ?? $lang['page_title_post']) . ' - ' . $lang['page_title_default'];
+    $post = $blog->getCurrentPost();
+    $pageTitle = ($post?->title ?? $lang['page_title_post']) . ' - ' . $lang['page_title_default'];
+    $metaDesc  = ($post && isset($excerpts[$post->slug])) ? $excerpts[$post->slug] : $lang['site_description'];
 } elseif ($blog->isSearch()) {
     $pageTitle = sprintf($lang['page_title_search'], $blog->getSafeQuery());
+    $metaDesc  = $lang['site_description'];
 } elseif ($blog->isTagSearch()) {
     $pageTitle = sprintf($lang['page_title_tag'], $blog->getSafeTag());
+    $metaDesc  = $lang['site_description'];
 } elseif ($blog->isTagsList()) {
     $pageTitle = $lang['page_title_tags_list'];
+    $metaDesc  = $lang['site_description'];
 } else {
     $pageTitle = $lang['page_title_default'];
+    $metaDesc  = $lang['site_description'];
 }
 ?>
 <!DOCTYPE html>
@@ -27,6 +37,7 @@ if ($blog->isPost()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="<?= htmlspecialchars($metaDesc, ENT_QUOTES, 'UTF-8') ?>">
     <title><?= $pageTitle ?></title>
     <!-- 抽出された外部CSSの読み込み -->
     <link rel="stylesheet" href="assets/css/style.css">
@@ -44,12 +55,6 @@ if ($blog->isPost()) {
     </header>
 
     <main>
-    <?php
-        $thumbs    = $blog->getThumbs();
-        $excerpts  = $blog->getExcerpts();
-        $postTags  = $blog->getPostTags();
-    ?>
-
     <!-- 1. 一覧（ホーム）モード -->
     <?php if ($blog->isHome()): ?>
         <?php $topTags = $blog->getTags(5); ?>

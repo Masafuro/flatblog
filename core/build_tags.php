@@ -57,7 +57,7 @@ foreach ($files as $filePath) {
     $plain = preg_replace('/\[([^\]]+)\]\([^\)]+\)/u', '$1', $plain); // リンク→テキスト
     $plain = preg_replace('/[#*`_~>|\-]+/u', '', $plain);           // その他Markdown記号除去
     $plain = trim(preg_replace('/\s+/u', ' ', $plain));             // 空白正規化
-    $excerpts[$filename] = mb_strlen($plain) > 0 ? mb_substr($plain, 0, 200) : null;
+    $excerpts[$filename] = mb_strlen($plain) > 0 ? mb_substr($plain, 0, 120) : null;
 }
 
 // カウントが多い順にソート

@@ -24,4 +24,5 @@ return [
     'error_post_not_found'      => 'Post not found',
     'error_post_not_found_msg'  => 'The post you are looking for may have been deleted or the URL is incorrect.',
     'tags_list_header'          => 'All Tags (Top 1000)',
+    'site_description'          => 'A lightweight, robust, and fast blog system built with Flatnotes data loader.',
 ];
