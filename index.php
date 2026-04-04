@@ -19,16 +19,7 @@ if ($blog->isPost()) {
     $pageTitle = $lang['page_title_default'];
     //$pageTitle = ($post?->title ?? $lang['page_title_post']) . ' - ' . $lang['page_title_default'];
     $metaDesc  = ($post && isset($excerpts[$post->slug])) ? $excerpts[$post->slug] : $lang['site_description'];
-} elseif ($blog->isSearch()) {
-    $pageTitle = sprintf($lang['page_title_search'], $blog->getSafeQuery());
-    $metaDesc  = $lang['site_description'];
-} elseif ($blog->isTagSearch()) {
-    $pageTitle = sprintf($lang['page_title_tag'], $blog->getSafeTag());
-    $metaDesc  = $lang['site_description'];
-} elseif ($blog->isTagsList()) {
-    $pageTitle = $lang['page_title_tags_list'];
-    $metaDesc  = $lang['site_description'];
-} else {
+}else {
     $pageTitle = $lang['page_title_default'];
     $metaDesc  = $lang['site_description'];
 }

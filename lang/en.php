@@ -6,10 +6,10 @@
 return [
     'html_lang'                 => 'en',
     'page_title_post'           => 'Post',
-    'page_title_search'         => 'Search Results for "%s" - Flatblog',
+/*    'page_title_search'         => 'Search Results for "%s" - Flatblog',
     'page_title_tag'            => 'Post List for #%s - Flatblog',
     'page_title_tags_list'      => 'All Tags - Flatblog',
-    'page_title_default'        => 'Flatblog',
+*/  'page_title_default'        => 'Flatblog',
     'search_placeholder'        => 'Search articles...',
     'search_button'             => 'Search',
     'link_all_tags'             => '📁View all tags',
