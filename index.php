@@ -45,22 +45,23 @@ if ($blog->isPost()) {
 
     <main>
     <?php
-        $tags      = $blog->getTags(50);
         $thumbs    = $blog->getThumbs();
         $excerpts  = $blog->getExcerpts();
         $postTags  = $blog->getPostTags();
     ?>
-    <?php if ($tags): ?>
-    <div class="tag-cloud">
-        <?php foreach ($tags as $tName => $tCount): ?>
-            <a href="?tag=<?= urlencode($tName) ?>">#<?= htmlspecialchars($tName) ?> (<?= $tCount ?>)</a>
-        <?php endforeach; ?>
-        <a href="?mode=tags" class="tag-list-link"><?= $lang['link_all_tags'] ?></a>
-    </div>
-    <?php endif; ?>
 
     <!-- 1. 一覧（ホーム）モード -->
     <?php if ($blog->isHome()): ?>
+        <?php $topTags = $blog->getTags(5); ?>
+        <?php if ($topTags): ?>
+        <div class="tag-cloud">
+            <?php foreach ($topTags as $tName => $tCount): ?>
+                <a href="?tag=<?= urlencode($tName) ?>">#<?= htmlspecialchars($tName) ?> (<?= $tCount ?>)</a>
+            <?php endforeach; ?>
+            <a href="?mode=tags" class="tag-list-link"><?= $lang['link_all_tags'] ?></a>
+        </div>
+        <?php endif; ?>
+
         <h2><?= $lang['header_latest_posts'] ?></h2>
         <?php $posts = $blog->getPosts(); ?>
         <?php if (empty($posts)): ?>

@@ -45,6 +45,15 @@ After starting the containers:
 - **Blog Frontend**: `http://localhost:8880` — what your visitors see.
 - **Admin Editor (flatnotes)**: `http://localhost:8881` — log in with your `.env` credentials to write posts, attach images, and manage content.
 
+### 💡 Note on Content Updates
+
+Flatblog uses **background indexing** for tags, excerpts, and thumbnails to ensure maximum performance. 
+
+1. **Frontend Blog (http://localhost:8880)**: After adding or modifying a post, metadata (tags/thumbnails) may not appear immediately. Open the frontend and then **refresh the page (F5)** to trigger the final metadata update.
+2. **Admin Editor (http://localhost:8881)**: Due to potential system interference, image uploads in the flatnotes editor may occasionally fail. If this happens, **refresh the editor interface** and try uploading again.
+
+---
+
 ### Tagging Guidelines
 
 To keep your blog posts clean and prevent tags from being rendered as large headers, follow this standard tagging convention at the top of your Markdown files:
