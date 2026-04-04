@@ -45,6 +45,19 @@ After starting the containers:
 - **Blog Frontend**: `http://localhost:8880` — what your visitors see.
 - **Admin Editor (flatnotes)**: `http://localhost:8881` — log in with your `.env` credentials to write posts, attach images, and manage content.
 
+### Tagging Guidelines
+
+To keep your blog posts clean and prevent tags from being rendered as large headers, follow this standard tagging convention at the top of your Markdown files:
+
+```markdown
+> #tag1 #tag2
+
+Your content starts here...
+```
+
+**Why the `>`?**  
+Standard Markdown engines (including Parsedown) often treat `#tag` at the start of a line as a Header 1. By prefixing it with a blockquote sign (`>`), you prevent the header rendering while allowing Flatblog's background processor to correctly extract and index your tags.
+
 ---
 
 ## 🎨 How to Customize
