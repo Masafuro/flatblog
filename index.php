@@ -33,7 +33,7 @@ if ($blog->isPost()) {
 </head>
 <body>
     <header>
-        <h1><a href="./">Flatblog</a></h1>
+        <h1><a href="./"><?= $pageTitle ?></a></h1>
         <div class="search-box">
             <!-- 検索窓。getSafeQuery() により、XSSを注入されても自動で無毒化された文字列が戻る -->
             <form method="get" action="./">
