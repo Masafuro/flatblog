@@ -3,6 +3,8 @@
 A lightning-fast, ultra-secure, flat-file blog system.
 It uses [flatnotes](https://github.com/dullage/flatnotes) as a headless Markdown editor and pure HTML/PHP for the frontend. No database required.
 
+[Usage Example: My personal blog](https://dev-blog.adxplatform.com/)
+
 ## Features
 
 - **Zero Database**: Stores all posts as raw Markdown (`.md`) files.
