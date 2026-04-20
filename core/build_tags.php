@@ -24,6 +24,7 @@ $tagCounts = [];
 $tagMap    = [];
 $thumbs    = [];
 $excerpts  = [];
+$meta      = [];
 
 foreach ($files as $filePath) {
     $filename = basename($filePath, '.md');
@@ -58,6 +59,18 @@ foreach ($files as $filePath) {
     $plain = preg_replace('/[#*`_~>|\-]+/u', '', $plain);           // その他Markdown記号除去
     $plain = trim(preg_replace('/\s+/u', ' ', $plain));             // 空白正規化
     $excerpts[$filename] = mb_strlen($plain) > 0 ? mb_substr($plain, 0, 120) : null;
+
+    // ── ④汎用メタデータ：Markdownリスト形式のKeyValueを抽出 ──
+    // (- Key:: Value または - Key :: Value)
+    $fileMeta = [];
+    if (preg_match_all('/^\s*-\s+([a-zA-Z0-9_]+)\s*::\s*(.+)$/mu', $content, $metaMatches, PREG_SET_ORDER)) {
+        foreach ($metaMatches as $match) {
+            $fileMeta[$match[1]] = trim($match[2]);
+        }
+    }
+    if (!empty($fileMeta)) {
+        $meta[$filename] = $fileMeta;
+    }
 }
 
 // カウントが多い順にソート
@@ -68,6 +81,7 @@ $indexData = [
     'map'      => $tagMap,
     'thumbs'   => $thumbs,
     'excerpts' => $excerpts,
+    'meta'     => $meta,
 ];
 
 $cacheDir = dirname(__DIR__) . '/cache';

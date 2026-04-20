@@ -129,6 +129,24 @@ class FlatblogLoader {
         return $postTags;
     }
 
+    /**
+     * 任意の記事の汎用メタデータを取得する
+     * Rule of Silence: 存在しない場合は静かに null を返す
+     */
+    public function getMeta(string $slug, string $key): ?string {
+        $indexPath = dirname(__DIR__) . '/cache/tags_index.json';
+        if (!file_exists($indexPath)) return null;
+        $data = json_decode(file_get_contents($indexPath), true);
+        return $data['meta'][$slug][$key] ?? null;
+    }
+
+    /**
+     * サイト全体の設定（_config.md）を取得するためのショートカット
+     */
+    public function getConfig(string $key, ?string $default = null): ?string {
+        return $this->getMeta('_config', $key) ?? $default;
+    }
+
     private function triggerTagBuildIfNeeded(): void {
         $files = glob($this->dataDir . '/*.md');
         if (!$files) return;
@@ -177,6 +195,11 @@ class FlatblogLoader {
         $posts = [];
         foreach ($fileData as $filePath => $mtime) {
             $filename = basename($filePath, '.md');
+
+            // アンダースコアから始まるファイル（例: _config.md）はシステム用ファイルとして一覧から隠蔽
+            if (str_starts_with($filename, '_')) {
+                continue;
+            }
 
             if ($this->isTagSearch() && !isset($tagMap[$filename])) {
                 continue;
