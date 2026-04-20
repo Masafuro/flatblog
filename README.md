@@ -13,7 +13,7 @@ It uses [flatnotes](https://github.com/dullage/flatnotes) as a headless Markdown
 - **Card-Based Overview**: The article list displays a thumbnail (extracted from the first local image in each post) and a plain-text excerpt (first 200 characters). Posts without images fall back gracefully to a CSS gradient placeholder — no configuration required.
 - **In-Card Tag Badges**: Each article card shows its associated tags as clickable badges, providing immediate navigation context without leaving the overview.
 - **Ultra Fast**: Server-side rendered with no database queries and virtually zero overhead.
-- **Dead-Simple Customization**: Your entire blog theme lives in `index.php`, `assets/css/style.css`, and `lang/en.php`. Theme colors and layout values are defined as CSS custom properties in `:root`, while site labels and titles are managed in a simple PHP array — override any value in a single block to reskin the entire site. No template engine to learn.
+- **Pure Data-Driven Customization**: Your entire blog is configured via hidden Markdown files (`_config.md`, `_lang_en.md`). Themes are stored in `themes/` and selected via your markdown config. Zero PHP configuration files are required. No template engine to learn.
 
 ---
 
@@ -81,16 +81,16 @@ Standard Markdown engines (including Parsedown) often treat a `#tag` at the star
 
 ## 🎨 How to Customize
 
-Flatblog's frontend is divided into clean, extensible layers:
+Flatblog uses a **Pure Data-Driven Architecture**. All configurations are done through hidden Markdown files (files starting with `_`) via the Flatnotes editor. No PHP editing is required.
 
-1. **HTML Structure (`index.php`)**: The theme template. Standard HTML with PHP data injection. Modify the DOM freely.
-2. **Styling (`assets/css/style.css`)**: The default lightweight CSS theme. All colors and layout values are defined as CSS custom properties in `:root`. To reskin the site, redefine these variables — no other file needs to change. Dark mode is supported automatically via `prefers-color-scheme`.
-3. **Language & Labels (`lang/en.php`)**: All site-wide labels, button texts, and page title formats. Edit this file to change the site language or customize specific terminology.
-4. **Scripts (`assets/js/script.js`)**: Entry point for custom frontend logic.
+1. **Site Configuration (`_config.md`)**: Set your site's `Theme`, `Language`, and `SiteName` using the `- Key:: Value` syntax.
+2. **Themes (`themes/`)**: Flatblog supports swappable themes. A theme consists of a `layout.php` (HTML structure) and `style.css`.
+3. **Language & Labels (`_lang_*.md`)**: Customize UI texts (like "Search" or "Latest Posts") by creating a language markdown file (e.g., `_lang_en.md`) and overriding specific keys.
 
-**⚡ For Advanced Developers (Vite, Webpack, Tailwind, etc.):**
-Point your build tool's output directory to `assets/`. Flatblog's PHP backend has no dependency on specific class names and will serve your built assets transparently.
+**⚡ Theme Development:**
+If you want to build your own theme, see the Theme Development Guide. The PHP backend is fully decoupled from the UI.
 
+👉 **[Theme Development Guide](THEME_DEVELOPMENT.md)**  
 👉 **[PHP API Reference (FlatblogLoader Cheat Sheet)](REFERENCE.md)**  
 👉 **[Architecture & Internal Design](ARCHITECTURE.md)**
 

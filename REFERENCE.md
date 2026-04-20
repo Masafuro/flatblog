@@ -98,17 +98,18 @@ The following is a minimal but complete example of how routing and data access s
 ```php
 <?php
 // 1. Resolve site-wide labels and site title
-$lang = require __DIR__ . '/lang/en.php';
+$langCode = $blog->getConfig('Language', 'en');
+$lang     = $blog->getMeta('_lang_' . $langCode) ?: [];
 
 // 2. Resolve page title before HTML output
 if ($blog->isPost()) {
-    $pageTitle = ($blog->getCurrentPost()?->title ?? $lang['page_title_post']) . ' - ' . $lang['page_title_default'];
+    $pageTitle = ($blog->getCurrentPost()?->title ?? ($lang['page_title_post'] ?? 'Post')) . ' - ' . ($lang['page_title_default'] ?? 'Flatblog');
 } elseif ($blog->isSearch()) {
-    $pageTitle = sprintf($lang['page_title_search'], $blog->getSafeQuery());
+    $pageTitle = sprintf($lang['page_title_search'] ?? 'Search: %s', $blog->getSafeQuery());
 } elseif ($blog->isTagSearch()) {
-    $pageTitle = sprintf($lang['page_title_tag'], $blog->getSafeTag());
+    $pageTitle = sprintf($lang['page_title_tag'] ?? 'Tag: %s', $blog->getSafeTag());
 } else {
-    $pageTitle = $lang['page_title_default'];
+    $pageTitle = $lang['page_title_default'] ?? 'Flatblog';
 }
 
 // Pre-fetch index-based data once (used in card loops)
@@ -169,14 +170,14 @@ $postTags = $blog->getPostTags();
     <?php elseif ($blog->isPost()): ?>
         <?php $post = $blog->getCurrentPost(); ?>
         <?php if ($post): ?>
-            <nav><a href="./"><?= $lang['link_back_to_list'] ?></a></nav>
+            <nav><a href="./"><?= htmlspecialchars($lang['link_back_to_list'] ?? 'Back') ?></a></nav>
             <article>
                 <h2><?= $post->title ?></h2>
-                <p><?= sprintf($lang['post_updated_at'], $post->date) ?></p>
+                <p><?= htmlspecialchars(sprintf($lang['post_updated_at'] ?? 'Last updated: %s', $post->date)) ?></p>
                 <?= $post->htmlContent /* pre-sanitized HTML — do not escape */ ?>
             </article>
         <?php else: ?>
-            <h2><?= $lang['error_post_not_found'] ?></h2>
+            <h2><?= htmlspecialchars($lang['error_post_not_found'] ?? 'Not found') ?></h2>
         <?php endif; ?>
 
     <!-- All Tags Page -->
@@ -195,25 +196,29 @@ $postTags = $blog->getPostTags();
 
 ## 4. Localization & Custom Labels
 
-Flatblog separates site-wide text (labels, button texts, page title formats) into simple PHP files. This makes it easy to change your blog's language or override specific terminology.
+Flatblog uses Markdown files to manage UI labels, making it a **pure data-driven system**. There are no PHP configuration files to edit.
 
-### How to use labels
-All labels are stored in the `$lang` array, which you load at the top of `index.php`:
+### How to use labels in Themes
+You fetch the language array from `index.php` and pass it to your theme:
 ```php
-$lang = require __DIR__ . '/lang/en.php';
+$langCode = $blog->getConfig('Language', 'en');
+$lang     = $blog->getMeta('_lang_' . $langCode) ?: [];
 ```
 
-### Modifying site names
-The site name "Flatblog" is defined in `lang/en.php` under the key `page_title_default`. Changing it there will update the `<title>` across all pages and the default header name.
+Inside your theme HTML (`layout.php`), **always** use the null coalescing operator (`??`) to provide a fallback string:
+```php
+<button><?= htmlspecialchars($lang['search_button'] ?? 'Search') ?></button>
+```
+This ensures your theme will never crash, even if the user hasn't defined `search_button` in their markdown file. **The theme takes responsibility for providing default strings.**
 
-### Adding a new language
-To add support for a new language (e.g., Japanese):
-1.  Create a new file: `lang/ja.php`.
-2.  Copy the contents of `lang/en.php` into it and translate the strings.
-3.  In `index.php`, change the require path:
-    ```php
-    $lang = require __DIR__ . '/lang/ja.php';
-    ```
+### Customizing labels via Flatnotes
+Users can override any label by creating a file named `_lang_en.md` (or the language set in `_config.md`) in Flatnotes:
+```markdown
+# Custom Language Labels
+- search_button:: Find Articles
+- header_latest_posts:: Recent Updates
+```
+Any keys defined here will automatically replace the default strings in the theme.
 
 
 ---

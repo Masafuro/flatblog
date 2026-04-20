@@ -6,7 +6,7 @@ $siteName = $blog->getConfig('SiteName', 'Corporate Inc.');
 $headerImage = $thumbs['_header_image'] ?? null;
 ?>
 <!DOCTYPE html>
-<html lang="<?= $lang['html_lang'] ?>">
+<html lang="<?= $lang['html_lang'] ?? 'en' ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -54,7 +54,7 @@ $headerImage = $thumbs['_header_image'] ?? null;
 
                 <!-- Latest News Section -->
                 <section id="news" class="news-section fade-in">
-                    <h3 class="section-title">Latest News</h3>
+                    <h3 class="section-title"><?= htmlspecialchars($lang['header_latest_posts'] ?? 'Latest News') ?></h3>
                     <?php $posts = $blog->getPosts(); ?>
                     <?php if (empty($posts)): ?>
                         <p class="empty-state">No news available.</p>

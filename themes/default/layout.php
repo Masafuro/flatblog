@@ -4,7 +4,7 @@
 // ==========================================
 ?>
 <!DOCTYPE html>
-<html lang="<?= $lang['html_lang'] ?>">
+<html lang="<?= $lang['html_lang'] ?? 'en' ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,8 +19,8 @@
         <div class="search-box">
             <!-- 検索窓。getSafeQuery() により、XSSを注入されても自動で無毒化された文字列が戻る -->
             <form method="get" action="./">
-                <input type="search" name="q" value="<?= $blog->getSafeQuery() ?>" placeholder="<?= $lang['search_placeholder'] ?>">
-                <button type="submit"><?= $lang['search_button'] ?></button>
+                <input type="search" name="q" value="<?= $blog->getSafeQuery() ?>" placeholder="<?= htmlspecialchars($lang['search_placeholder'] ?? 'Search articles...') ?>">
+                <button type="submit"><?= htmlspecialchars($lang['search_button'] ?? 'Search') ?></button>
             </form>
         </div>
     </header>
@@ -34,14 +34,14 @@
             <?php foreach ($topTags as $tName => $tCount): ?>
                 <a href="?tag=<?= urlencode($tName) ?>">#<?= htmlspecialchars($tName) ?> (<?= $tCount ?>)</a>
             <?php endforeach; ?>
-            <a href="?mode=tags" class="tag-list-link"><?= $lang['link_all_tags'] ?></a>
+            <a href="?mode=tags" class="tag-list-link"><?= htmlspecialchars($lang['link_all_tags'] ?? 'View all tags') ?></a>
         </div>
         <?php endif; ?>
 
-        <h2><?= $lang['header_latest_posts'] ?></h2>
+        <h2><?= htmlspecialchars($lang['header_latest_posts'] ?? 'Latest Posts') ?></h2>
         <?php $posts = $blog->getPosts(); ?>
         <?php if (empty($posts)): ?>
-            <p class="empty-state"><?= $lang['empty_no_posts'] ?></p>
+            <p class="empty-state"><?= htmlspecialchars($lang['empty_no_posts'] ?? 'No posts yet.') ?></p>
         <?php else: ?>
         <ul class="post-list">
             <?php foreach ($posts as $post): ?>
@@ -80,9 +80,9 @@
     <!-- 2. 検索結果モード -->
     <?php elseif ($blog->isSearch()): ?>
         <nav class="breadcrumb">
-            <a href="./"><?= $lang['link_back_to_list'] ?></a>
+            <a href="./"><?= htmlspecialchars($lang['link_back_to_list'] ?? '← Back to post list') ?></a>
         </nav>
-        <h2><?= sprintf($lang['search_results_count'], $blog->getSafeQuery(), $blog->getResultCount()) ?></h2>
+        <h2><?= htmlspecialchars(sprintf($lang['search_results_count'] ?? 'Search results for "%s" (%d items)', $blog->getSafeQuery(), $blog->getResultCount())) ?></h2>
         <?php if ($blog->getResultCount() > 0): ?>
             <ul class="post-list">
                 <?php foreach ($blog->getPosts() as $post): ?>
@@ -117,15 +117,15 @@
                 <?php endforeach; ?>
             </ul>
         <?php else: ?>
-            <p><?= $lang['search_no_results'] ?></p>
+            <p><?= htmlspecialchars($lang['search_no_results'] ?? 'No matching posts found.') ?></p>
         <?php endif; ?>
 
     <!-- 3. タグ検索モード -->
     <?php elseif ($blog->isTagSearch()): ?>
         <nav class="breadcrumb">
-            <a href="./"><?= $lang['link_back_to_list'] ?></a>
+            <a href="./"><?= htmlspecialchars($lang['link_back_to_list'] ?? '← Back to post list') ?></a>
         </nav>
-        <h2><?= sprintf($lang['tag_posts_count'], $blog->getSafeTag(), $blog->getResultCount()) ?></h2>
+        <h2><?= htmlspecialchars(sprintf($lang['tag_posts_count'] ?? 'Post List for #%s (%d items)', $blog->getSafeTag(), $blog->getResultCount())) ?></h2>
         <?php if ($blog->getResultCount() > 0): ?>
             <ul class="post-list">
                 <?php foreach ($blog->getPosts() as $post): ?>
@@ -160,7 +160,7 @@
                 <?php endforeach; ?>
             </ul>
         <?php else: ?>
-            <p><?= $lang['tag_no_results'] ?></p>
+            <p><?= htmlspecialchars($lang['tag_no_results'] ?? 'No posts found for this tag.') ?></p>
         <?php endif; ?>
 
     <!-- 4. 個別記事モード -->
@@ -169,11 +169,11 @@
         <?php if ($post): ?>
             <!-- 戻るナビゲーション（グループB N°9）-->
             <nav class="breadcrumb">
-                <a href="./"><?= $lang['link_back_to_list'] ?></a>
+                <a href="./"><?= htmlspecialchars($lang['link_back_to_list'] ?? '← Back to post list') ?></a>
             </nav>
             <article>
                 <h2><?= $post->title ?></h2>
-                <div class="date" style="margin-bottom: 10px;"><?= sprintf($lang['post_updated_at'], $post->date) ?></div>
+                <div class="date" style="margin-bottom: 10px;"><?= htmlspecialchars(sprintf($lang['post_updated_at'] ?? 'Last updated: %s', $post->date)) ?></div>
                 <?php $cardTags = $postTags[$post->slug] ?? []; ?>
                 <?php if ($cardTags): ?>
                     <div class="post-card__tags" style="margin-bottom: 20px;">
@@ -189,18 +189,18 @@
             </article>
         <?php else: ?>
             <!-- Rule of silence: エラーを出さずHTML側で制御 -->
-            <nav class="breadcrumb"><a href="./"><?= $lang['link_back_to_list'] ?></a></nav>
-            <h2><?= $lang['error_post_not_found'] ?></h2>
-            <p><?= $lang['error_post_not_found_msg'] ?></p>
+            <nav class="breadcrumb"><a href="./"><?= htmlspecialchars($lang['link_back_to_list'] ?? '← Back to post list') ?></a></nav>
+            <h2><?= htmlspecialchars($lang['error_post_not_found'] ?? 'Post not found') ?></h2>
+            <p><?= htmlspecialchars($lang['error_post_not_found_msg'] ?? 'The post you are looking for may have been deleted or the URL is incorrect.') ?></p>
         <?php endif; ?>
 
     <!-- 5. タグ一覧モード -->
     <?php elseif ($blog->isTagsList()): ?>
         <!-- 戻るナビゲーション（グループB N°13）-->
         <nav class="breadcrumb">
-            <a href="./"><?= $lang['link_back_to_list'] ?></a>
+            <a href="./"><?= htmlspecialchars($lang['link_back_to_list'] ?? '← Back to post list') ?></a>
         </nav>
-        <h2><?= $lang['tags_list_header'] ?></h2>
+        <h2><?= htmlspecialchars($lang['tags_list_header'] ?? 'All Tags (Top 1000)') ?></h2>
         <div class="tag-cloud large">
             <?php foreach ($blog->getTags(1000) as $tName => $tCount): ?>
                 <a href="?tag=<?= urlencode($tName) ?>">#<?= htmlspecialchars($tName) ?> (<?= $tCount ?>)</a>

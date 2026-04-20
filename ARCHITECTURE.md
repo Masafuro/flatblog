@@ -6,23 +6,27 @@ This document describes the internal design decisions, data flow, and structural
 
 ## 1. Directory Structure
 
-```
+```text
 flatblog/
-├── index.php               # The single entry point & theme template
-├── lang/                   # Theme labels and site-wide labels (PHP arrays)
-│   └── en.php              # Default language (English)
+├── index.php               # Front controller & theme dispatcher
 ├── core/
 │   ├── FlatblogLoader.php  # Data provider class (the only PHP API surface)
 │   ├── Post.php            # Read-only Post DTO
 │   ├── build_tags.php      # CLI-only background index builder
 │   └── Parsedown.php       # Markdown-to-HTML parser (vendored)
+├── themes/                 # Theme layer
+│   ├── default/            # Default minimalist theme
+│   │   ├── layout.php      # HTML structure
+│   │   └── style.css       # Theme styling
+│   └── sample_A/           # Corporate style theme
 ├── assets/
-│   ├── css/style.css       # Default theme stylesheet
-│   └── js/script.js        # Frontend script entry point
+│   └── js/script.js        # Global frontend scripts
 ├── cache/                  # Writable by PHP; generated files only
 │   └── tags_index.json     # Auto-generated article index (see §3)
 ├── blog/                   # Mounted read-only from flatnotes data volume
 │   ├── *.md                # Article files written by the flatnotes editor
+│   ├── _config.md          # Site configuration (Theme, Language, etc.)
+│   ├── _lang_*.md          # Custom language labels
 │   └── attachments/        # Images and file attachments
 ├── docker-compose.yml
 └── .env
@@ -36,14 +40,14 @@ flatblog/
 
 Flatblog deliberately rejects MVC frameworks and template engines. The data flow is a straight line:
 
-```
+```text
 HTTP Request
     │
     ▼
 index.php  ──────────────────────────────────>  HTML Response
     │                                                 ▲
-    │  1. loads labels from                           │
-    ├── lang/*.php                                    │
+    │  1. reads from                                  │
+    ├── blog/_config.md                               │
     │                                                 │
     │  2. instantiates                                │
     ▼                                                 │
@@ -53,11 +57,14 @@ FlatblogLoader                                        │
     │                                                 │
     │  reads from                                     │
     ├── blog/*.md  (read-only filesystem)             │
-    └── cache/tags_index.json  (pre-built index)  ────┘
-                                              (data injected into HTML template)
+    └── cache/tags_index.json  (pre-built index)  ────┤
+                                                      │
+    3. delegates to Theme                             │
+    ▼                                                 │
+themes/<Theme>/layout.php ────────────────────────────┘
 ```
 
-`FlatblogLoader` is a **pure data provider**: it resolves routing, reads files, and returns sanitized PHP objects. It has no output side-effects. `index.php` consumes this data and produces HTML — nothing more.
+`FlatblogLoader` is a **pure data provider**: it resolves routing, reads files, and returns sanitized PHP objects. It has no output side-effects. `index.php` acts as a front controller that delegates rendering to the active theme's `layout.php`.
 
 ---
 

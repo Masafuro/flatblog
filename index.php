@@ -8,7 +8,9 @@ require_once __DIR__ . '/core/FlatblogLoader.php';
 $blog = new \Flatblog\Core\FlatblogLoader(__DIR__ . '/blog');
 
 // 言語・データの事前取得
-$lang      = require __DIR__ . '/lang/en.php';
+$langCode = $blog->getConfig('Language', 'en');
+$lang     = $blog->getMeta('_lang_' . $langCode) ?: [];
+
 $thumbs    = $blog->getThumbs();
 $excerpts  = $blog->getExcerpts();
 $postTags  = $blog->getPostTags();
@@ -16,11 +18,11 @@ $postTags  = $blog->getPostTags();
 // ページタイトルとメタ記述をモードに応じて動的に生成
 if ($blog->isPost()) {
     $post = $blog->getCurrentPost();
-    $pageTitle = $lang['page_title_default'];
-    $metaDesc  = ($post && isset($excerpts[$post->slug])) ? $excerpts[$post->slug] : $lang['site_description'];
+    $pageTitle = $lang['page_title_default'] ?? 'Flatblog';
+    $metaDesc  = ($post && isset($excerpts[$post->slug])) ? $excerpts[$post->slug] : ($lang['site_description'] ?? 'A lightweight, robust, and fast blog system built with Flatnotes data loader.');
 } else {
-    $pageTitle = $lang['page_title_default'];
-    $metaDesc  = $lang['site_description'];
+    $pageTitle = $lang['page_title_default'] ?? 'Flatblog';
+    $metaDesc  = $lang['site_description'] ?? 'A lightweight, robust, and fast blog system built with Flatnotes data loader.';
 }
 
 // ==========================================

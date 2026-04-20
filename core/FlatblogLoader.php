@@ -131,12 +131,16 @@ class FlatblogLoader {
 
     /**
      * 任意の記事の汎用メタデータを取得する
-     * Rule of Silence: 存在しない場合は静かに null を返す
+     * Rule of Silence: 存在しない場合は静かに null または 空配列 を返す
      */
-    public function getMeta(string $slug, string $key): ?string {
+    public function getMeta(string $slug, ?string $key = null) {
         $indexPath = dirname(__DIR__) . '/cache/tags_index.json';
-        if (!file_exists($indexPath)) return null;
+        if (!file_exists($indexPath)) return $key === null ? [] : null;
         $data = json_decode(file_get_contents($indexPath), true);
+        
+        if ($key === null) {
+            return $data['meta'][$slug] ?? [];
+        }
         return $data['meta'][$slug][$key] ?? null;
     }
 
